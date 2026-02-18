@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getAllProducts } from "@/lib/airtable";
 import { ProductGrid } from "@/components/ui/ProductGrid";
 import { Sparkles } from "lucide-react";
@@ -71,10 +72,19 @@ export default async function HomePage() {
           <span className="font-serif text-xs tracking-[0.2em] text-stone-400">
             CALM HOME SPACES
           </span>
-          <p className="text-[10px] text-stone-400 text-center md:text-right max-w-sm leading-relaxed">
-            En tant que Partenaire Amazon, nous réalisons un bénéfice sur les
-            achats remplissant les conditions requises.
-          </p>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/privacy"
+              className="text-[10px] text-stone-400 hover:text-stone-600 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <span className="text-stone-200">|</span>
+            <p className="text-[10px] text-stone-400 text-center md:text-right max-w-sm leading-relaxed">
+              En tant que Partenaire Amazon, nous réalisons un bénéfice sur les
+              achats remplissant les conditions requises.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
