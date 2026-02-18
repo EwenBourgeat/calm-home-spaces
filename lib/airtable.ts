@@ -32,6 +32,7 @@ export interface ProductRecord {
 // ==============================================
 
 const TABLE_NAME = process.env.AIRTABLE_TABLE_NAME || "Products";
+const PINS_TABLE_NAME = "Pin (Post)";
 
 function getBase() {
     const apiKey = process.env.AIRTABLE_API_KEY;
@@ -44,22 +45,77 @@ function getBase() {
     return new Airtable({ apiKey }).base(baseId);
 }
 
+// ==============================================
+// Generated Images — fetched from Pin (Post) table
+// Returns a map: productRecordId → ProductImage[]
+// Only includes pins that have a Generated_Media attachment.
+// ==============================================
+
+async function getGeneratedImagesByProduct(): Promise<Map<string, ProductImage[]>> {
+    const base = getBase();
+    const result = new Map<string, ProductImage[]>();
+    if (!base) return result;
+
+    try {
+        const records = await base(PINS_TABLE_NAME)
+            .select({
+                fields: ["Product", "Generated_Media"],
+                // Only fetch pins that have a generated image
+                filterByFormula: "NOT({Generated_Media} = '')",
+            })
+            .all();
+
+        for (const record of records) {
+            const productLinks = record.fields["Product"] as string[] | undefined;
+            const media = record.fields["Generated_Media"] as
+                | Array<{ url: string; width?: number; height?: number }>
+                | undefined;
+
+            if (!productLinks || productLinks.length === 0 || !media || media.length === 0) {
+                continue;
+            }
+
+            // A pin is linked to one product; take the first link
+            const productId = productLinks[0];
+            const images: ProductImage[] = media.map((img) => ({
+                url: img.url,
+                width: img.width || 896,
+                height: img.height || 1152,
+            }));
+
+            // Accumulate images across multiple pins for the same product
+            const existing = result.get(productId) ?? [];
+            result.set(productId, [...existing, ...images]);
+        }
+    } catch (error) {
+        console.error("[Airtable] Failed to fetch generated images from Pin (Post):", error);
+    }
+
+    return result;
+}
+
 /**
  * Maps a raw Airtable record to our typed ProductRecord.
- * 
+ *
  * FIELD MAPPING (Airtable column → our interface):
  *   "Clean_Title"       → title (falls back to "Name" if empty)
  *   "Clean_Description" → description
- *   "Product_Image"     → imageUrl, imageWidth, imageHeight
+ *   "Product_Image"     → imageUrl, imageWidth, imageHeight (fallback)
  *   "Affiliate_Link"    → amazonUrl
  *   "Category"          → category
  *   "Sub_Category"      → subCategory
  *   "Price_USD"         → price
  *   "Status"            → used for filtering only
  *
+ * generatedImages: optional pre-fetched map of AI-generated images per product ID.
+ * When provided and the product has generated images, those are used instead of Product_Image.
+ *
  * Returns null if required fields (Clean_Title/Name, Affiliate_Link, Product_Image) are missing.
  */
-function mapRecord(record: Airtable.Record<Airtable.FieldSet>): ProductRecord | null {
+function mapRecord(
+    record: Airtable.Record<Airtable.FieldSet>,
+    generatedImages?: Map<string, ProductImage[]>
+): ProductRecord | null {
     const fields = record.fields;
 
     const cleanTitle = fields["Clean_Title"] as string | undefined;
@@ -81,12 +137,16 @@ function mapRecord(record: Airtable.Record<Airtable.FieldSet>): ProductRecord | 
         return null;
     }
 
-    // Map all images with fallback dimensions
-    const allImages: ProductImage[] = media.map((img) => ({
+    // Fallback: original product images from the Products table
+    const originalImages: ProductImage[] = media.map((img) => ({
         url: img.url,
         width: img.width || 800,
         height: img.height || 1000,
     }));
+
+    // Prefer AI-generated images from Pin (Post) if available for this product
+    const aiImages = generatedImages?.get(record.id);
+    const allImages = aiImages && aiImages.length > 0 ? aiImages : originalImages;
 
     const primaryImage = allImages[0];
 
@@ -124,8 +184,12 @@ export async function getProduct(recordId: string): Promise<ProductRecord | null
     }
 
     try {
-        const record = await base(TABLE_NAME).find(recordId);
-        return mapRecord(record);
+        // Fetch generated images and the product record in parallel
+        const [generatedImages, record] = await Promise.all([
+            getGeneratedImagesByProduct(),
+            base(TABLE_NAME).find(recordId),
+        ]);
+        return mapRecord(record, generatedImages);
     } catch (error) {
         // Airtable throws if the record ID doesn't exist (404)
         console.error(`[Airtable] Failed to fetch product ${recordId}:`, error);
@@ -148,15 +212,20 @@ export async function getAllProducts(): Promise<ProductRecord[]> {
     }
 
     try {
-        // Fetch all records — no filter on Status since the field may not exist yet
-        const records = await base(TABLE_NAME)
-            .select({
-                sort: [{ field: "Name", direction: "asc" }],
-            })
-            .all();
+        // Fetch generated images and all products in parallel
+        const [generatedImages, records] = await Promise.all([
+            getGeneratedImagesByProduct(),
+            base(TABLE_NAME)
+                .select({
+                    sort: [{ field: "Name", direction: "asc" }],
+                })
+                .all(),
+        ]);
 
         // Map and filter out any records with missing data
-        return records.map(mapRecord).filter((p): p is ProductRecord => p !== null);
+        return records
+            .map((r) => mapRecord(r, generatedImages))
+            .filter((p): p is ProductRecord => p !== null);
     } catch (error) {
         console.error("[Airtable] Failed to fetch products:", error);
         return [];
