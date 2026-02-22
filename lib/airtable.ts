@@ -1,8 +1,7 @@
 import Airtable from "airtable";
 
 // ==============================================
-// TypeScript Interface — mirrors the Airtable schema
-// Only the fields needed by the frontend are exposed.
+// TypeScript Interfaces
 // ==============================================
 
 export interface ProductImage {
@@ -23,12 +22,23 @@ export interface ProductRecord {
     category: string;
     subCategory: string;
     price: number | null;
+    parentProduct: string;
+    colorVariant: string;
+}
+
+/** A product group bundles all color variants of the same parent product. */
+export interface ProductGroup {
+    /** Use the first variant's parentProduct as the group key */
+    parentProduct: string;
+    /** Display title (from the first variant) */
+    title: string;
+    category: string;
+    /** All individual variant records */
+    variants: ProductRecord[];
 }
 
 // ==============================================
-// Airtable Client — Lazy Initialization
-// The SDK throws if AIRTABLE_API_KEY is missing at import time,
-// so we defer connection creation until a function is actually called.
+// Airtable Client
 // ==============================================
 
 const TABLE_NAME = process.env.AIRTABLE_TABLE_NAME || "Products";
@@ -46,9 +56,7 @@ function getBase() {
 }
 
 // ==============================================
-// Generated Images — fetched from Pin (Post) table
-// Returns a map: productRecordId → ProductImage[]
-// Only includes pins that have a Generated_Media attachment.
+// Generated Images from Pin (Post)
 // ==============================================
 
 async function getGeneratedImagesByProduct(): Promise<Map<string, ProductImage[]>> {
@@ -60,7 +68,6 @@ async function getGeneratedImagesByProduct(): Promise<Map<string, ProductImage[]
         const records = await base(PINS_TABLE_NAME)
             .select({
                 fields: ["Product", "Generated_Media"],
-                // Only fetch pins that have a generated image
                 filterByFormula: "NOT({Generated_Media} = '')",
             })
             .all();
@@ -75,7 +82,6 @@ async function getGeneratedImagesByProduct(): Promise<Map<string, ProductImage[]
                 continue;
             }
 
-            // A pin is linked to one product; take the first link
             const productId = productLinks[0];
             const images: ProductImage[] = media.map((img) => ({
                 url: img.url,
@@ -83,7 +89,6 @@ async function getGeneratedImagesByProduct(): Promise<Map<string, ProductImage[]
                 height: img.height || 1152,
             }));
 
-            // Accumulate images across multiple pins for the same product
             const existing = result.get(productId) ?? [];
             result.set(productId, [...existing, ...images]);
         }
@@ -94,24 +99,10 @@ async function getGeneratedImagesByProduct(): Promise<Map<string, ProductImage[]
     return result;
 }
 
-/**
- * Maps a raw Airtable record to our typed ProductRecord.
- *
- * FIELD MAPPING (Airtable column → our interface):
- *   "Clean_Title"       → title (falls back to "Name" if empty)
- *   "Clean_Description" → description
- *   "Product_Image"     → imageUrl, imageWidth, imageHeight (fallback)
- *   "Affiliate_Link"    → amazonUrl
- *   "Category"          → category
- *   "Sub_Category"      → subCategory
- *   "Price_USD"         → price
- *   "Status"            → used for filtering only
- *
- * generatedImages: optional pre-fetched map of AI-generated images per product ID.
- * When provided and the product has generated images, those are used instead of Product_Image.
- *
- * Returns null if required fields (Clean_Title/Name, Affiliate_Link, Product_Image) are missing.
- */
+// ==============================================
+// Record Mapping
+// ==============================================
+
 function mapRecord(
     record: Airtable.Record<Airtable.FieldSet>,
     generatedImages?: Map<string, ProductImage[]>
@@ -120,34 +111,31 @@ function mapRecord(
 
     const cleanTitle = fields["Clean_Title"] as string | undefined;
     const name = fields["Name"] as string | undefined;
-    const title = cleanTitle || name; // Prefer Clean_Title, fall back to Name
+    const title = cleanTitle || name;
     const description = fields["Clean_Description"] as string | undefined;
     const affiliateLink = fields["Affiliate_Link"] as string | undefined;
     const category = fields["Category"] as string | undefined;
     const subCategory = fields["Sub_Category"] as string | undefined;
     const priceUsd = fields["Price_USD"] as number | undefined;
+    const parentProduct = fields["Parent_Product"] as string | undefined;
+    const colorVariant = fields["Color_Variant"] as string | undefined;
 
-    // Product_Image is an Airtable Attachment field (array of objects)
     const media = fields["Product_Image"] as
         | Array<{ url: string; width?: number; height?: number }>
         | undefined;
 
-    // Guard: skip records missing critical data
     if (!title || !affiliateLink || !media || media.length === 0) {
         return null;
     }
 
-    // Fallback: original product images from the Products table
     const originalImages: ProductImage[] = media.map((img) => ({
         url: img.url,
         width: img.width || 800,
         height: img.height || 1000,
     }));
 
-    // Prefer AI-generated images from Pin (Post) if available for this product
     const aiImages = generatedImages?.get(record.id);
     const allImages = aiImages && aiImages.length > 0 ? aiImages : originalImages;
-
     const primaryImage = allImages[0];
 
     return {
@@ -162,20 +150,47 @@ function mapRecord(
         category: category || "Decor",
         subCategory: subCategory || "",
         price: priceUsd ?? null,
+        parentProduct: parentProduct || name || title,
+        colorVariant: colorVariant || "",
     };
+}
+
+// ==============================================
+// Grouping Logic
+// ==============================================
+
+/**
+ * Groups an array of ProductRecords by their `parentProduct` field.
+ * Products sharing the same `parentProduct` value are treated as color variants.
+ * Products without a `colorVariant` remain standalone (group with 1 variant).
+ */
+export function groupProducts(products: ProductRecord[]): ProductGroup[] {
+    const groupMap = new Map<string, ProductRecord[]>();
+
+    for (const product of products) {
+        const key = product.parentProduct;
+        const existing = groupMap.get(key) ?? [];
+        groupMap.set(key, [...existing, product]);
+    }
+
+    const groups: ProductGroup[] = [];
+    for (const [parentProduct, variants] of groupMap) {
+        const first = variants[0];
+        groups.push({
+            parentProduct,
+            title: first.title,
+            category: first.category,
+            variants,
+        });
+    }
+
+    return groups;
 }
 
 // ==============================================
 // Data Fetching Functions (Server-Side Only)
 // ==============================================
 
-/**
- * Fetch a single product by its Airtable Record ID.
- * Used by the product page (app/product/[id]/page.tsx).
- *
- * Returns null if the record doesn't exist, is missing required fields,
- * or if Airtable credentials are not configured.
- */
 export async function getProduct(recordId: string): Promise<ProductRecord | null> {
     const base = getBase();
     if (!base) {
@@ -184,26 +199,17 @@ export async function getProduct(recordId: string): Promise<ProductRecord | null
     }
 
     try {
-        // Fetch generated images and the product record in parallel
         const [generatedImages, record] = await Promise.all([
             getGeneratedImagesByProduct(),
             base(TABLE_NAME).find(recordId),
         ]);
         return mapRecord(record, generatedImages);
     } catch (error) {
-        // Airtable throws if the record ID doesn't exist (404)
         console.error(`[Airtable] Failed to fetch product ${recordId}:`, error);
         return null;
     }
 }
 
-/**
- * Fetch all products from the table.
- * Used by the homepage to display a grid of available products.
- *
- * If a "Status" field exists, it filters for "Ready" or "Published".
- * If not, it returns all records that have the required fields.
- */
 export async function getAllProducts(): Promise<ProductRecord[]> {
     const base = getBase();
     if (!base) {
@@ -212,7 +218,6 @@ export async function getAllProducts(): Promise<ProductRecord[]> {
     }
 
     try {
-        // Fetch generated images and all products in parallel
         const [generatedImages, records] = await Promise.all([
             getGeneratedImagesByProduct(),
             base(TABLE_NAME)
@@ -222,7 +227,6 @@ export async function getAllProducts(): Promise<ProductRecord[]> {
                 .all(),
         ]);
 
-        // Map and filter out any records with missing data
         return records
             .map((r) => mapRecord(r, generatedImages))
             .filter((p): p is ProductRecord => p !== null);
@@ -230,4 +234,22 @@ export async function getAllProducts(): Promise<ProductRecord[]> {
         console.error("[Airtable] Failed to fetch products:", error);
         return [];
     }
+}
+
+/**
+ * Fetch all products and return them grouped by Parent_Product.
+ * This is used by the homepage to show one card per product group.
+ */
+export async function getAllProductGroups(): Promise<ProductGroup[]> {
+    const products = await getAllProducts();
+    return groupProducts(products);
+}
+
+/**
+ * Fetch all variants for a given Parent_Product name.
+ * Used on the product detail page to show variant switcher.
+ */
+export async function getProductVariants(parentProduct: string): Promise<ProductRecord[]> {
+    const allProducts = await getAllProducts();
+    return allProducts.filter((p) => p.parentProduct === parentProduct);
 }

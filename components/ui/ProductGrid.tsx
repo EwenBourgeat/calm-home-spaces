@@ -2,28 +2,28 @@
 
 import { useState, useMemo } from "react";
 import { ProductCard } from "@/components/ui/ProductCard";
-import type { ProductRecord } from "@/lib/airtable";
+import type { ProductGroup } from "@/lib/airtable";
 import { cn } from "@/lib/utils";
 
 interface ProductGridProps {
-    products: ProductRecord[];
+    groups: ProductGroup[];
 }
 
-export function ProductGrid({ products }: ProductGridProps) {
+export function ProductGrid({ groups }: ProductGridProps) {
     const [activeCategory, setActiveCategory] = useState<string>("Tout");
 
-    // Extract unique categories from products
+    // Extract unique categories from groups
     const categories = useMemo(() => {
-        const cats = Array.from(new Set(products.map((p) => p.category)));
+        const cats = Array.from(new Set(groups.map((g) => g.category)));
         cats.sort();
         return ["Tout", ...cats];
-    }, [products]);
+    }, [groups]);
 
-    // Filter products
+    // Filter groups by category
     const filtered = useMemo(() => {
-        if (activeCategory === "Tout") return products;
-        return products.filter((p) => p.category === activeCategory);
-    }, [products, activeCategory]);
+        if (activeCategory === "Tout") return groups;
+        return groups.filter((g) => g.category === activeCategory);
+    }, [groups, activeCategory]);
 
     return (
         <div>
@@ -33,8 +33,8 @@ export function ProductGrid({ products }: ProductGridProps) {
                     const isActive = cat === activeCategory;
                     const count =
                         cat === "Tout"
-                            ? products.length
-                            : products.filter((p) => p.category === cat).length;
+                            ? groups.length
+                            : groups.filter((g) => g.category === cat).length;
 
                     return (
                         <button
@@ -67,16 +67,16 @@ export function ProductGrid({ products }: ProductGridProps) {
 
             {/* Product grid with animated transitions */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                {filtered.map((product, index) => (
+                {filtered.map((group, index) => (
                     <div
-                        key={product.id}
+                        key={group.parentProduct}
                         className="animate-fade-in-up"
                         style={{
                             animationDelay: `${index * 60}ms`,
                             animationFillMode: "backwards",
                         }}
                     >
-                        <ProductCard product={product} />
+                        <ProductCard group={group} />
                     </div>
                 ))}
             </div>

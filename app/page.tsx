@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAllProducts } from "@/lib/airtable";
+import { getAllProductGroups } from "@/lib/airtable";
 import { ProductGrid } from "@/components/ui/ProductGrid";
 import { Sparkles } from "lucide-react";
 
@@ -8,10 +8,10 @@ export const revalidate = 3600;
 
 /**
  * Homepage — "Digital Decor Magazine" landing page.
- * Displays a curated grid of products from Airtable with category filters.
+ * Displays a curated grid of product groups from Airtable with category filters.
  */
 export default async function HomePage() {
-  const products = await getAllProducts();
+  const groups = await getAllProductGroups();
 
   return (
     <div className="min-h-screen">
@@ -45,8 +45,8 @@ export default async function HomePage() {
             </h2>
           </div>
 
-          {products.length > 0 ? (
-            <ProductGrid products={products} />
+          {groups.length > 0 ? (
+            <ProductGrid groups={groups} />
           ) : (
             /* Empty state */
             <div className="text-center py-20">
