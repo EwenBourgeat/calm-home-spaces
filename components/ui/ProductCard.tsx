@@ -13,7 +13,7 @@ interface ProductCardProps {
 
 /**
  * Product Card for the homepage grid.
- * Displays one card per product group, with color swatches for multi-variant groups.
+ * Displays one card per product group, with image-based variant thumbnails.
  * On hover, auto-cycles through images with a horizontal slide transition.
  */
 export function ProductCard({ group }: ProductCardProps) {
@@ -133,30 +133,35 @@ export function ProductCard({ group }: ProductCardProps) {
                     {activeVariant.title}
                 </h3>
 
-                <div className="flex items-center justify-between mt-1.5">
+                <div className="flex items-center justify-between mt-2">
                     <p className="text-xs text-stone-400 uppercase tracking-wider">
                         {activeVariant.category}
                     </p>
 
-                    {/* Color swatches */}
+                    {/* Variant image thumbnails */}
                     {hasVariants && (
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1">
                             {group.variants.map((variant, i) => (
                                 <button
                                     key={variant.id}
                                     onClick={(e) => handleVariantClick(e, i)}
                                     title={variant.colorVariant}
                                     className={`
-                                        w-4 h-4 rounded-full border-2 transition-all duration-200
+                                        relative w-6 h-6 rounded-md overflow-hidden transition-all duration-200 shrink-0
                                         ${i === activeVariantIndex
-                                            ? "border-stone-800 scale-110"
-                                            : "border-stone-200 hover:border-stone-400"
+                                            ? "ring-2 ring-stone-800 ring-offset-1"
+                                            : "ring-1 ring-stone-200 hover:ring-stone-400 opacity-70 hover:opacity-100"
                                         }
                                     `}
-                                    style={{
-                                        backgroundColor: colorNameToHex(variant.colorVariant),
-                                    }}
-                                />
+                                >
+                                    <Image
+                                        src={variant.imageUrl}
+                                        alt={variant.colorVariant || variant.title}
+                                        fill
+                                        sizes="24px"
+                                        className="object-cover"
+                                    />
+                                </button>
                             ))}
                         </div>
                     )}
@@ -164,93 +169,4 @@ export function ProductCard({ group }: ProductCardProps) {
             </div>
         </Link>
     );
-}
-
-/**
- * Maps common color names to hex values for swatch display.
- * Falls back to a neutral tone for unknown colors.
- */
-function colorNameToHex(name: string): string {
-    const lower = name.toLowerCase().trim();
-    const colorMap: Record<string, string> = {
-        // Blues
-        "blue": "#5B7FA5",
-        "light blue": "#A8C4D8",
-        "navy": "#2C3E5A",
-        "dark blue": "#2C3E5A",
-        "teal": "#5F8A8B",
-        "grayish teal": "#7A9E9F",
-
-        // Greys
-        "grey": "#9CA3AF",
-        "gray": "#9CA3AF",
-        "light grey": "#C4C9CF",
-        "dark grey": "#5A5F66",
-        "charcoal": "#3D4148",
-        "oatmeal linen grey": "#C5BBAE",
-
-        // Whites / Creams
-        "white": "#F5F0EB",
-        "cream": "#F0E6D6",
-        "cream white": "#F0E6D6",
-        "ivory": "#F0E8D8",
-        "light ivory": "#F5EDE0",
-        "off-white": "#EDE7DB",
-        "beige": "#D4C5B0",
-        "natural beige": "#D4C5B0",
-
-        // Browns / Warm
-        "brown": "#8B7355",
-        "dark brown": "#5C4A32",
-        "tan": "#C9A96E",
-        "sand": "#D2B48C",
-        "taupe": "#AE9E87",
-        "camel": "#C19A6B",
-        "rust": "#B7553A",
-
-        // Blacks
-        "black": "#2D2D2D",
-
-        // Greens
-        "green": "#6B8F71",
-        "sage": "#A3AD93",
-        "olive": "#808040",
-        "forest green": "#4A6741",
-
-        // Pinks / Warm tones
-        "pink": "#D4A0A0",
-        "blush": "#E6C4C0",
-        "rose": "#C9908D",
-
-        // Purples
-        "purple": "#8B7DAF",
-        "lavender": "#B8A9C9",
-
-        // Yellows / Golds
-        "yellow": "#E8D166",
-        "gold": "#C9A844",
-        "mustard": "#C1952A",
-
-        // Reds
-        "red": "#B54040",
-        "burgundy": "#722F37",
-        "wine": "#722F37",
-
-        // Multi / Compound
-        "grey-soft blue": "#8FA4B2",
-        "flax gray": "#B5AC9A",
-    };
-
-    // Try exact match
-    if (colorMap[lower]) return colorMap[lower];
-
-    // Try partial match (first matching key)
-    for (const [key, value] of Object.entries(colorMap)) {
-        if (lower.includes(key) || key.includes(lower)) {
-            return value;
-        }
-    }
-
-    // Fallback: neutral stone
-    return "#A8A29E";
 }

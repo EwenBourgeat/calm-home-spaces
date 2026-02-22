@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { ProductRecord } from "@/lib/airtable";
 import { ImageGallery } from "@/components/ui/ImageGallery";
 import { StickyBuyButton } from "@/components/ui/StickyBuyButton";
@@ -12,8 +13,8 @@ interface VariantSwitcherProps {
 
 /**
  * Client component that manages variant switching on the product detail page.
- * Renders the image gallery, variant color buttons, description, and CTA,
- * dynamically updating everything when a color variant is selected.
+ * Renders the image gallery, variant image thumbnails, description, and CTA,
+ * dynamically updating everything when a variant is selected.
  */
 export function VariantSwitcher({ variants, initialVariantId }: VariantSwitcherProps) {
     const initialIndex = Math.max(0, variants.findIndex((v) => v.id === initialVariantId));
@@ -47,7 +48,7 @@ export function VariantSwitcher({ variants, initialVariantId }: VariantSwitcherP
                 {/* Decorative divider */}
                 <div className="mt-6 mb-6 w-12 h-px bg-stone-300" />
 
-                {/* Variant color selector */}
+                {/* Variant image thumbnails */}
                 {hasVariants && (
                     <div className="mb-6">
                         <p className="text-xs text-stone-400 uppercase tracking-wider mb-3">
@@ -60,16 +61,21 @@ export function VariantSwitcher({ variants, initialVariantId }: VariantSwitcherP
                                     onClick={() => setActiveIndex(i)}
                                     title={variant.colorVariant}
                                     className={`
-                                        w-7 h-7 rounded-full border-2 transition-all duration-200
+                                        relative w-12 h-12 rounded-lg overflow-hidden transition-all duration-200 shrink-0
                                         ${i === activeIndex
-                                            ? "border-stone-800 scale-110 shadow-sm"
-                                            : "border-stone-200 hover:border-stone-400"
+                                            ? "ring-2 ring-stone-800 ring-offset-2 shadow-sm"
+                                            : "ring-1 ring-stone-200 hover:ring-stone-400 opacity-60 hover:opacity-100"
                                         }
                                     `}
-                                    style={{
-                                        backgroundColor: colorNameToHex(variant.colorVariant),
-                                    }}
-                                />
+                                >
+                                    <Image
+                                        src={variant.imageUrl}
+                                        alt={variant.colorVariant || variant.title}
+                                        fill
+                                        sizes="48px"
+                                        className="object-cover"
+                                    />
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -90,48 +96,4 @@ export function VariantSwitcher({ variants, initialVariantId }: VariantSwitcherP
             </div>
         </div>
     );
-}
-
-/** Maps common color names to hex values for swatch display. */
-function colorNameToHex(name: string): string {
-    const lower = name.toLowerCase().trim();
-    const colorMap: Record<string, string> = {
-        "blue": "#5B7FA5",
-        "light blue": "#A8C4D8",
-        "navy": "#2C3E5A",
-        "teal": "#5F8A8B",
-        "grayish teal": "#7A9E9F",
-        "grey": "#9CA3AF",
-        "gray": "#9CA3AF",
-        "oatmeal linen grey": "#C5BBAE",
-        "white": "#F5F0EB",
-        "cream": "#F0E6D6",
-        "cream white": "#F0E6D6",
-        "ivory": "#F0E8D8",
-        "light ivory": "#F5EDE0",
-        "beige": "#D4C5B0",
-        "natural beige": "#D4C5B0",
-        "brown": "#8B7355",
-        "black": "#2D2D2D",
-        "green": "#6B8F71",
-        "sage": "#A3AD93",
-        "pink": "#D4A0A0",
-        "blush": "#E6C4C0",
-        "grey-soft blue": "#8FA4B2",
-        "flax gray": "#B5AC9A",
-        "rust": "#B7553A",
-        "mustard": "#C1952A",
-        "burgundy": "#722F37",
-        "lavender": "#B8A9C9",
-        "gold": "#C9A844",
-        "sand": "#D2B48C",
-        "taupe": "#AE9E87",
-        "camel": "#C19A6B",
-    };
-
-    if (colorMap[lower]) return colorMap[lower];
-    for (const [key, value] of Object.entries(colorMap)) {
-        if (lower.includes(key) || key.includes(lower)) return value;
-    }
-    return "#A8A29E";
 }
