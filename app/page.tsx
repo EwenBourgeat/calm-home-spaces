@@ -3,8 +3,9 @@ import { getAllProductGroups } from "@/lib/airtable";
 import { ProductGrid } from "@/components/ui/ProductGrid";
 import { Sparkles } from "lucide-react";
 
-// ISR: Revalidate the homepage every hour
-export const revalidate = 3600;
+// Force dynamic rendering — Airtable attachment URLs are signed and expire
+// after a few hours, so we must fetch fresh URLs on every request.
+export const revalidate = 0;
 
 /**
  * Homepage — "Digital Decor Magazine" landing page.

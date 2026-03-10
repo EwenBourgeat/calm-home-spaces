@@ -7,8 +7,8 @@ import Link from "next/link";
 
 // ===================================
 // ISR Configuration
-// ===================================
-export const revalidate = 3600;
+// Force dynamic rendering — Airtable attachment URLs expire
+export const revalidate = 0;
 
 // ===================================
 // Dynamic SEO Metadata
