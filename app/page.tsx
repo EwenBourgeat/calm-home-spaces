@@ -1,11 +1,20 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getAllProductGroups } from "@/lib/airtable";
+import { getAllArticles } from "@/data/inspiration-articles";
 import { ProductGrid } from "@/components/ui/ProductGrid";
-import { Sparkles } from "lucide-react";
+import { Sparkles, BookOpen, ArrowRight, Clock } from "lucide-react";
 
 // Force dynamic rendering — Airtable attachment URLs are signed and expire
 // after a few hours, so we must fetch fresh URLs on every request.
 export const revalidate = 0;
+
+// Category → muted background color
+const categoryColors: Record<string, string> = {
+  "Japandi Style": "bg-stone-200/60",
+  "Cozy Living": "bg-amber-100/50",
+  Scandinavian: "bg-sky-100/40",
+};
 
 /**
  * Homepage — "Digital Decor Magazine" landing page.
@@ -13,6 +22,8 @@ export const revalidate = 0;
  */
 export default async function HomePage() {
   const groups = await getAllProductGroups();
+  const allArticles = getAllArticles();
+  const featuredArticles = allArticles.slice(0, 3);
 
   return (
     <div className="min-h-screen">
@@ -30,6 +41,74 @@ export default async function HomePage() {
             Découvrez notre sélection de pièces déco soigneusement choisies pour
             créer des espaces chaleureux, apaisants et intemporels.
           </p>
+        </div>
+      </section>
+
+      {/* ========================================
+          Inspiration Section — Featured Articles
+          ======================================== */}
+      <section className="px-4 pb-16">
+        <div className="mx-auto max-w-6xl">
+          {/* Section header */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-forest/70" />
+              <h2 className="text-xs tracking-[0.2em] uppercase text-stone-500 font-sans font-medium">
+                Derniers articles
+              </h2>
+            </div>
+            <Link
+              href="/inspiration"
+              className="flex items-center gap-1.5 text-xs tracking-wide text-forest hover:text-forest/80 transition-colors duration-200 font-medium group"
+            >
+              Voir tout
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+            </Link>
+          </div>
+
+          {/* Articles row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {featuredArticles.map((article, index) => (
+              <Link
+                key={article.slug}
+                href={`/inspiration/${article.slug}`}
+                className="group block rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in-up"
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                  animationFillMode: "backwards",
+                }}
+              >
+                {/* Category color band */}
+                <div
+                  className={`h-32 ${categoryColors[article.category] || "bg-stone-100"} flex items-end p-4 relative overflow-hidden`}
+                >
+                  {/* Decorative element */}
+                  <div className="absolute top-3 right-3 w-16 h-16 rounded-full bg-white/20 blur-xl" />
+                  <span className="relative text-[10px] tracking-[0.15em] uppercase text-stone-600 font-sans bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full font-medium">
+                    {article.category}
+                  </span>
+                </div>
+
+                {/* Card body */}
+                <div className="p-5">
+                  <h3 className="font-serif text-base text-stone-800 leading-snug group-hover:text-forest transition-colors duration-200 line-clamp-2">
+                    {article.title}
+                  </h3>
+
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-stone-400">
+                      <Clock className="w-3 h-3" />
+                      <span className="text-[11px]">{article.readTime}</span>
+                    </div>
+                    <span className="flex items-center gap-1 text-[11px] text-stone-400 group-hover:text-forest transition-colors duration-200">
+                      Lire
+                      <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-200" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -70,9 +149,15 @@ export default async function HomePage() {
           ======================================== */}
       <footer className="border-t border-stone-200/60 py-10 px-4">
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-serif text-xs tracking-[0.2em] text-stone-400">
-            CALM HOME SPACES
-          </span>
+          <Link href="/">
+            <Image
+              src="/logo.jpeg"
+              alt="CalmHomeSpaces"
+              width={120}
+              height={35}
+              className="h-7 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity"
+            />
+          </Link>
           <div className="flex items-center gap-4">
             <Link
               href="/privacy"
