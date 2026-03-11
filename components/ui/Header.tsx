@@ -35,9 +35,9 @@ export function Header() {
                     <Image
                         src="/logo.jpeg"
                         alt="CalmHomeSpaces"
-                        width={140}
-                        height={40}
-                        className="h-8 w-auto object-contain"
+                        width={180}
+                        height={52}
+                        className="h-10 md:h-12 w-auto object-contain"
                         priority
                     />
                 </Link>
