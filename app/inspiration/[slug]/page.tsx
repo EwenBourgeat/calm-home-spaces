@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import {
@@ -6,7 +6,7 @@ import {
     getArticleBySlug,
     getRelatedArticles,
 } from "@/data/inspiration-articles";
-import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
+import { ArrowLeft, Clock, ArrowRight, ShoppingBag } from "lucide-react";
 
 // ==============================================
 // Static Params — pre-generate all 8 article pages
@@ -151,7 +151,7 @@ export default async function InspirationArticlePage({
     const article = getArticleBySlug(slug);
 
     if (!article) {
-        notFound();
+        redirect("/inspiration");
     }
 
     const relatedArticles = getRelatedArticles(article.relatedSlugs);
@@ -223,6 +223,33 @@ export default async function InspirationArticlePage({
             <div className="mx-auto max-w-3xl px-4 pb-16">
                 {renderMarkdown(article.content)}
             </div>
+
+            {/* ── Shop the Look (only if relatedProducts provided) ── */}
+            {article.relatedProducts.length > 0 && (
+                <section className="border-t border-stone-200/60 py-16 px-4">
+                    <div className="mx-auto max-w-3xl">
+                        <div className="flex items-center gap-2 mb-8">
+                            <ShoppingBag className="w-4 h-4 text-stone-400" />
+                            <h2 className="font-serif text-xl text-stone-800">
+                                Shop the Look
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            {article.relatedProducts.map((productId) => (
+                                <Link
+                                    key={productId}
+                                    href={`/product/${productId}`}
+                                    className="group block rounded-xl bg-white p-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 text-center"
+                                >
+                                    <span className="text-sm font-serif text-stone-700 group-hover:text-forest transition-colors duration-200">
+                                        View Product →
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* ── Related Articles ── */}
             {relatedArticles.length > 0 && (
