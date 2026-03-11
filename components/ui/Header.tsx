@@ -39,6 +39,12 @@ export function Header() {
                 {/* Minimal navigation — keep it clean */}
                 <div className="flex items-center gap-6">
                     <Link
+                        href="/inspiration"
+                        className="text-xs tracking-widest text-stone-500 hover:text-stone-800 transition-colors duration-200 uppercase"
+                    >
+                        Inspiration
+                    </Link>
+                    <Link
                         href="/"
                         className="text-xs tracking-widest text-stone-500 hover:text-stone-800 transition-colors duration-200 uppercase"
                     >
