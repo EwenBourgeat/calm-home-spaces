@@ -23,8 +23,8 @@ export async function generateMetadata({
 
     if (!product) {
         return {
-            title: "Produit introuvable",
-            description: "Ce produit n'est plus disponible sur Calm Home Spaces.",
+            title: "Product not found",
+            description: "This product is no longer available on Calm Home Spaces.",
         };
     }
 
@@ -88,7 +88,7 @@ export default async function ProductPage({
                     className="inline-flex items-center gap-2 text-sm text-stone-400 hover:text-stone-700 transition-colors duration-200"
                 >
                     <ArrowLeft className="w-4 h-4" />
-                    <span>Retour</span>
+                    <span>Back</span>
                 </Link>
             </div>
 

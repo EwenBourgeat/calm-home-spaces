@@ -192,7 +192,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
                 {/* Arrows on hover */}
                 <button
                     onClick={(e) => { e.stopPropagation(); goPrev(); }}
-                    aria-label="Image précédente"
+                    aria-label="Previous image"
                     className={cn(
                         "absolute left-3 top-1/2 -translate-y-1/2 z-50",
                         "w-10 h-10 rounded-full",
@@ -209,7 +209,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
 
                 <button
                     onClick={(e) => { e.stopPropagation(); goNext(); }}
-                    aria-label="Image suivante"
+                    aria-label="Next image"
                     className={cn(
                         "absolute right-3 top-1/2 -translate-y-1/2 z-50",
                         "w-10 h-10 rounded-full",
@@ -249,7 +249,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
                                 setOrder((prev) => [...prev.slice(idx), ...prev.slice(0, idx)]);
                             }
                         }}
-                        aria-label={`Voir image ${i + 1}`}
+                        aria-label={`View image ${i + 1}`}
                         className={cn(
                             "transition-all duration-300 ease-out rounded-full",
                             i === currentImageIndex

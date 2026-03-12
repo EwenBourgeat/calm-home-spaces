@@ -48,13 +48,12 @@ export default async function HomePage() {
       <section className="pt-28 pb-16 px-4">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-stone-900 leading-tight">
-            Des intérieurs qui
+            Interiors that
             <br />
-            <span className="italic text-stone-600">inspirent le calme</span>
+            <span className="italic text-stone-600">inspire calm</span>
           </h1>
           <p className="mt-6 text-stone-500 text-lg leading-relaxed max-w-xl mx-auto">
-            Découvrez notre sélection de pièces déco soigneusement choisies pour
-            créer des espaces chaleureux, apaisants et intemporels.
+            Discover our selection of carefully chosen decor pieces to create warm, calming, and timeless spaces.
           </p>
         </div>
       </section>
@@ -69,14 +68,14 @@ export default async function HomePage() {
             <div className="flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-forest/70" />
               <h2 className="text-xs tracking-[0.2em] uppercase text-stone-500 font-sans font-medium">
-                Derniers articles
+                Latest Articles
               </h2>
             </div>
             <Link
               href="/inspiration"
               className="flex items-center gap-1.5 text-xs tracking-wide text-forest hover:text-forest/80 transition-colors duration-200 font-medium group"
             >
-              Voir tout
+              View all
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
             </Link>
           </div>
@@ -164,7 +163,7 @@ export default async function HomePage() {
           <div className="flex items-center gap-2 mb-8">
             <Sparkles className="w-4 h-4 text-stone-400" />
             <h2 className="text-xs tracking-[0.2em] uppercase text-stone-400 font-sans">
-              Sélection du moment
+              Current Selection
             </h2>
           </div>
 
@@ -177,10 +176,10 @@ export default async function HomePage() {
                 <Sparkles className="w-6 h-6 text-stone-400" />
               </div>
               <h3 className="font-serif text-xl text-stone-700 mb-2">
-                Nouvelles pièces bientôt disponibles
+                New pieces coming soon
               </h3>
               <p className="text-stone-400 text-sm">
-                Notre collection est en cours de préparation. Revenez bientôt.
+                Our collection is being prepared. Check back soon.
               </p>
             </div>
           )}
@@ -204,8 +203,7 @@ export default async function HomePage() {
             </Link>
             <span className="text-stone-200">|</span>
             <p className="text-[10px] text-stone-400 text-center md:text-right max-w-sm leading-relaxed">
-              En tant que Partenaire Amazon, nous réalisons un bénéfice sur les
-              achats remplissant les conditions requises.
+              As an Amazon Associate, we earn from qualifying purchases.
             </p>
           </div>
         </div>

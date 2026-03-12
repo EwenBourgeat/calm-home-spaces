@@ -18,14 +18,12 @@ export default function NotFound() {
 
                 {/* Heading */}
                 <h1 className="font-serif text-2xl md:text-3xl text-stone-800 mb-3">
-                    Oups, ce produit n&apos;est plus disponible
+                    Oops, this product is no longer available
                 </h1>
 
                 {/* Explanation */}
                 <p className="text-stone-500 text-sm leading-relaxed mb-8">
-                    Il se peut que cet article ait été retiré de notre sélection ou que le
-                    lien soit incorret. Découvrez nos autres pièces soigneusement
-                    sélectionnées.
+                    This item may have been removed from our selection or the link is incorrect. Discover our other carefully selected pieces.
                 </p>
 
                 {/* CTA — Back to homepage */}
@@ -34,7 +32,7 @@ export default function NotFound() {
                     className="inline-flex items-center gap-2 bg-forest text-cream px-6 py-3 rounded-full text-sm font-medium tracking-wide hover:bg-forest-light transition-all duration-300 hover:shadow-lg"
                 >
                     <Home className="w-4 h-4" />
-                    Retour à l&apos;accueil
+                    Back to home
                 </Link>
 
                 {/* Branding */}

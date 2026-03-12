@@ -361,9 +361,7 @@ export default async function InspirationArticlePage({
                         CALM HOME SPACES
                     </span>
                     <p className="text-[10px] text-stone-400 text-center md:text-right max-w-sm leading-relaxed">
-                        En tant que Partenaire Amazon, nous réalisons un
-                        bénéfice sur les achats remplissant les conditions
-                        requises.
+                        As an Amazon Associate, we earn from qualifying purchases.
                     </p>
                 </div>
             </footer>

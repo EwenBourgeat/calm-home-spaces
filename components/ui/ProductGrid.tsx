@@ -85,7 +85,7 @@ export function ProductGrid({ groups }: ProductGridProps) {
             {filtered.length === 0 && (
                 <div className="text-center py-20 animate-fade-in-up">
                     <p className="font-serif text-lg text-stone-500 italic">
-                        Aucun produit dans cette catégorie pour le moment.
+                        No products in this category at the moment.
                     </p>
                 </div>
             )}

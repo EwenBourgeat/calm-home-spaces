@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
                         className="inline-flex items-center gap-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        Retour
+                        Back
                     </Link>
                 </div>
             </div>
@@ -612,8 +612,7 @@ export default function PrivacyPolicyPage() {
                         CALM HOME SPACES
                     </span>
                     <p className="text-[10px] text-stone-400 text-center md:text-right max-w-sm leading-relaxed">
-                        En tant que Partenaire Amazon, nous réalisons un bénéfice sur les
-                        achats remplissant les conditions requises.
+                        As an Amazon Associate, we earn from qualifying purchases.
                     </p>
                 </div>
             </footer>

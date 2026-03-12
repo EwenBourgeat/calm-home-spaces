@@ -26,7 +26,7 @@ export function StickyBuyButton({ amazonUrl, productTitle }: StickyBuyButtonProp
                     href={amazonUrl}
                     target="_blank"
                     rel="nofollow noreferrer noopener"
-                    aria-label={`Voir ${productTitle} sur Amazon`}
+                    aria-label={`View ${productTitle} on Amazon`}
                     className={cn(
                         "inline-flex items-center justify-center gap-3",
                         "bg-forest text-cream px-8 py-4 rounded-full",
@@ -36,13 +36,12 @@ export function StickyBuyButton({ amazonUrl, productTitle }: StickyBuyButtonProp
                     )}
                 >
                     <ShoppingBag className="w-5 h-5" />
-                    Voir sur Amazon
+                    View on Amazon
                 </a>
 
                 {/* Affiliate disclaimer — always visible, never hidden by CSS */}
                 <p className="mt-3 text-xs text-stone-400 leading-relaxed max-w-sm">
-                    En tant que Partenaire Amazon, nous réalisons un bénéfice sur les achats
-                    remplissant les conditions requises.
+                    As an Amazon Associate, we earn from qualifying purchases.
                 </p>
             </div>
 
@@ -54,7 +53,7 @@ export function StickyBuyButton({ amazonUrl, productTitle }: StickyBuyButtonProp
                     href={amazonUrl}
                     target="_blank"
                     rel="nofollow noreferrer noopener"
-                    aria-label={`Voir ${productTitle} sur Amazon`}
+                    aria-label={`View ${productTitle} on Amazon`}
                     className={cn(
                         "flex items-center justify-center gap-3 w-full",
                         "bg-forest text-cream py-4 rounded-full",
@@ -63,13 +62,12 @@ export function StickyBuyButton({ amazonUrl, productTitle }: StickyBuyButtonProp
                     )}
                 >
                     <ShoppingBag className="w-5 h-5" />
-                    Voir sur Amazon
+                    View on Amazon
                 </a>
 
                 {/* Affiliate disclaimer — always visible on mobile */}
                 <p className="mt-2 text-center text-[10px] text-stone-400 leading-tight px-4">
-                    En tant que Partenaire Amazon, nous réalisons un bénéfice sur les achats
-                    remplissant les conditions requises.
+                    As an Amazon Associate, we earn from qualifying purchases.
                 </p>
             </div>
         </>
