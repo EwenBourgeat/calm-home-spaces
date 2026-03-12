@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getAllArticles } from "@/data/inspiration-articles";
-import { Sparkles, Clock, ArrowRight } from "lucide-react";
+import { Sparkles, Clock, ArrowRight, ShoppingBag } from "lucide-react";
+import { getUniqueHeroImages } from "@/lib/article-utils";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ const categoryColors: Record<string, string> = {
 };
 
 // ==============================================
-// Product matching — same logic as [slug]/page.tsx
+// Product fetching
 // ==============================================
 
 interface ApiProduct {
@@ -35,63 +36,6 @@ interface ApiProduct {
     category: string;
     sub_category: string;
     product_image_url: string;
-}
-
-type MatchRule = {
-    categories?: string[];
-    subCategories?: string[];
-};
-
-const SLUG_PRODUCT_RULES: Record<string, MatchRule> = {
-    "japandi-living-room": {
-        categories: ["Salon"],
-        subCategories: ["Lighting"],
-    },
-    "cozy-reading-nook": {
-        subCategories: ["Lighting"],
-    },
-    "minimalist-bedroom": {
-        categories: ["Chambre"],
-    },
-    "hygge-evening-lighting": {
-        subCategories: ["Lighting"],
-    },
-    "scandinavian-spring-refresh": {
-        categories: ["Salon"],
-    },
-    "japandi-shelf-styling": {
-        categories: ["Salon"],
-    },
-    "wabi-sabi-home": {
-        categories: ["Salon"],
-    },
-    "minimalist-bathroom": {
-        categories: ["Salle de bain"],
-    },
-};
-
-function getHeroImageForSlug(
-    slug: string,
-    allProducts: ApiProduct[]
-): string | null {
-    const rule = SLUG_PRODUCT_RULES[slug];
-    if (!rule) return null;
-
-    const matched = allProducts.filter((p) => {
-        if (rule.subCategories && rule.subCategories.length > 0) {
-            if (rule.subCategories.some((sc) => p.sub_category === sc))
-                return true;
-        }
-        if (rule.categories && rule.categories.length > 0) {
-            if (rule.categories.some((c) => p.category === c)) return true;
-        }
-        return false;
-    });
-
-    if (matched.length === 0) return null;
-    // Pick the first match alphabetically
-    matched.sort((a, b) => a.clean_title.localeCompare(b.clean_title));
-    return matched[0].product_image_url;
 }
 
 async function fetchProducts(): Promise<ApiProduct[]> {
@@ -120,11 +64,14 @@ export default async function InspirationIndexPage() {
     const articles = getAllArticles();
     const products = await fetchProducts();
 
-    // Build a map of slug → hero image URL
-    const heroImages: Record<string, string | null> = {};
-    for (const article of articles) {
-        heroImages[article.slug] = getHeroImageForSlug(article.slug, products);
-    }
+    const heroImages = getUniqueHeroImages(
+        articles.map((a) => a.slug),
+        products,
+        (p) => p.category,
+        (p) => p.sub_category, // ApiProduct has sub_category
+        (p) => p.product_image_url,
+        (p) => p.clean_title
+    );
 
     return (
         <div className="min-h-screen">
@@ -188,15 +135,23 @@ export default async function InspirationIndexPage() {
                                         {heroUrl && (
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                                         )}
-                                        <span
-                                            className={`relative z-10 text-[10px] tracking-[0.15em] uppercase font-sans px-3 py-1 rounded-full ${
-                                                heroUrl
-                                                    ? "text-white bg-white/20 backdrop-blur-sm"
-                                                    : "text-stone-500 bg-white/70 backdrop-blur-sm"
-                                            }`}
-                                        >
-                                            {article.category}
-                                        </span>
+                                        <div className="relative z-10 flex flex-wrap items-center gap-2">
+                                            <span
+                                                className={`text-[10px] tracking-[0.15em] uppercase font-sans px-3 py-1 rounded-full ${
+                                                    heroUrl
+                                                        ? "text-white bg-white/20 backdrop-blur-sm"
+                                                        : "text-stone-500 bg-white/70 backdrop-blur-sm"
+                                                }`}
+                                            >
+                                                {article.category}
+                                            </span>
+                                            {heroUrl && (
+                                                <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-white bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+                                                    <ShoppingBag className="w-2.5 h-2.5" />
+                                                    Shoppable
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* Card body */}

@@ -3,7 +3,9 @@ import Image from "next/image";
 import { getAllProductGroups, getAllProducts } from "@/lib/airtable";
 import { getAllArticles } from "@/data/inspiration-articles";
 import { ProductGrid } from "@/components/ui/ProductGrid";
-import { Sparkles, BookOpen, ArrowRight, Clock } from "lucide-react";
+import { Sparkles, BookOpen, Clock, ShoppingBag, ArrowRight } from "lucide-react";
+import { getUniqueHeroImages } from "@/lib/article-utils";
+import { cn } from "@/lib/utils";
 
 // Force dynamic rendering — Airtable attachment URLs are signed and expire
 // after a few hours, so we must fetch fresh URLs on every request.
@@ -16,18 +18,6 @@ const categoryColors: Record<string, string> = {
   Scandinavian: "bg-sky-100/40",
 };
 
-// Slug → product matching rules for hero images
-const SLUG_RULES: Record<string, { categories?: string[]; subCategories?: string[] }> = {
-  "japandi-living-room": { categories: ["Salon"], subCategories: ["Lighting"] },
-  "cozy-reading-nook": { subCategories: ["Lighting"] },
-  "minimalist-bedroom": { categories: ["Chambre"] },
-  "hygge-evening-lighting": { subCategories: ["Lighting"] },
-  "scandinavian-spring-refresh": { categories: ["Salon"] },
-  "japandi-shelf-styling": { categories: ["Salon"] },
-  "wabi-sabi-home": { categories: ["Salon"] },
-  "minimalist-bathroom": { categories: ["Salle de bain"] },
-};
-
 /**
  * Homepage — "Digital Decor Magazine" landing page.
  * Displays a curated grid of product groups from Airtable with category filters.
@@ -38,21 +28,17 @@ export default async function HomePage() {
     getAllProducts(),
   ]);
   const allArticles = getAllArticles();
-  const featuredArticles = allArticles.slice(0, 3);
+  const featuredArticles = allArticles.slice(0, 5); // 5 elements for Bento Grid
 
-  // Build hero image map for featured articles
-  const heroImages: Record<string, string | null> = {};
-  for (const article of featuredArticles) {
-    const rule = SLUG_RULES[article.slug];
-    if (!rule) { heroImages[article.slug] = null; continue; }
-    const matched = allProducts.filter((p) => {
-      if (rule.subCategories?.some((sc) => p.subCategory === sc)) return true;
-      if (rule.categories?.some((c) => p.category === c)) return true;
-      return false;
-    });
-    matched.sort((a, b) => a.title.localeCompare(b.title));
-    heroImages[article.slug] = matched[0]?.imageUrl || null;
-  }
+  // Build hero image map ensuring uniqueness
+  const heroImages = getUniqueHeroImages(
+    featuredArticles.map((a) => a.slug),
+    allProducts,
+    (p) => p.category,
+    (p) => p.subCategory, // AirtableProduct has subCategory
+    (p) => p.imageUrl,
+    (p) => p.title
+  );
 
   return (
     <div className="min-h-screen">
@@ -95,65 +81,76 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* Articles row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {featuredArticles.map((article, index) => (
-              <Link
-                key={article.slug}
-                href={`/inspiration/${article.slug}`}
-                className="group block rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in-up"
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                  animationFillMode: "backwards",
-                }}
-              >
-                {/* Hero image or category color band */}
-                <div
-                  className={`relative h-36 ${!heroImages[article.slug] ? (categoryColors[article.category] || "bg-stone-100") : "bg-stone-100"} flex items-end p-4 overflow-hidden`}
+          {/* Articles Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:min-h-[500px]">
+            {featuredArticles.map((article, index) => {
+              const heroUrl = heroImages[article.slug];
+              
+              return (
+                <Link
+                  key={article.slug}
+                  href={`/inspiration/${article.slug}`}
+                  className={cn(
+                    "group block rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 relative flex flex-col justify-end animate-fade-in-up",
+                    !heroUrl ? "bg-stone-800" : "bg-stone-200",
+                    index === 0 ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "col-span-1 row-span-1 min-h-[250px] md:h-full"
+                  )}
+                  style={{
+                    animationDelay: `${index * 80}ms`,
+                    animationFillMode: "backwards",
+                  }}
                 >
-                  {heroImages[article.slug] && (
+                  {/* Hero image */}
+                  {heroUrl && (
                     <Image
-                      src={heroImages[article.slug]!}
+                      src={heroUrl}
                       alt={article.title}
                       fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
+                      sizes={index === 0 ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
                       unoptimized
                     />
                   )}
-                  {heroImages[article.slug] && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-                  )}
-                  <span
-                    className={`relative z-10 text-[10px] tracking-[0.15em] uppercase font-sans px-3 py-1 rounded-full font-medium ${
-                      heroImages[article.slug]
-                        ? "text-white bg-white/20 backdrop-blur-sm"
-                        : "text-stone-600 bg-white/80 backdrop-blur-sm"
-                    }`}
-                  >
-                    {article.category}
-                  </span>
-                </div>
-
-                {/* Card body */}
-                <div className="p-5">
-                  <h3 className="font-serif text-base text-stone-800 leading-snug group-hover:text-forest transition-colors duration-200 line-clamp-2">
-                    {article.title}
-                  </h3>
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-stone-400">
+                  
+                  {/* Gradient overlay for readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5" />
+  
+                  {/* Card body */}
+                  <div className="relative z-10 p-5 md:p-6 w-full">
+                    {/* Top badging */}
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <span className="text-[9px] tracking-[0.15em] uppercase font-sans px-2.5 py-1 rounded-full font-medium text-white bg-white/20 backdrop-blur-md border border-white/10">
+                        {article.category}
+                      </span>
+                      {heroUrl && (
+                        <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-white bg-black/40 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
+                          <ShoppingBag className="w-2.5 h-2.5" />
+                          Shoppable
+                        </span>
+                      )}
+                    </div>
+                    
+                    <h3 className={cn(
+                      "font-serif text-white leading-snug group-hover:text-stone-200 transition-colors duration-200",
+                      index === 0 ? "text-2xl md:text-3xl lg:text-4xl mb-3" : "text-lg md:text-base lg:text-lg mb-2 line-clamp-2"
+                    )}>
+                      {article.title}
+                    </h3>
+  
+                    {index === 0 && (
+                      <p className="hidden md:block text-stone-300 text-sm leading-relaxed mb-4 line-clamp-2">
+                        {article.subtitle}
+                      </p>
+                    )}
+  
+                    <div className="flex items-center gap-1.5 text-stone-300 opacity-80 group-hover:opacity-100 transition-opacity">
                       <Clock className="w-3 h-3" />
                       <span className="text-[11px]">{article.readTime}</span>
                     </div>
-                    <span className="flex items-center gap-1 text-[11px] text-stone-400 group-hover:text-forest transition-colors duration-200">
-                      Lire
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-200" />
-                    </span>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
