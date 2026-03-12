@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* ===================================
+   CalmHomeSpaces — Design System
+   Tailwind v4 @theme configuration
+   =================================== */
+
+@theme inline {
+  /* Typography */
+  --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  /* Brand Colors */
+  --color-cream: #FDFBF7;
+  --color-cream-dark: #F5F0E8;
+  --color-forest: #1A2F23;
+  --color-forest-light: #2A4A37;
+}
+
+/* ===================================
+   Base Styles
+   =================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-stone-900);
+  font-family: var(--font-sans);
+}
+
+/* ===================================
+   Utility Classes
+   =================================== */
+
+/* Glass morphism effect for the sticky header */
+.glass-effect {
+  background-color: rgba(253, 251, 247, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Smooth image loading animation */
+.image-reveal {
+  animation: imageReveal 0.6s ease-out forwards;
+}
+
+@keyframes imageReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Custom scrollbar — subtle, warm tones */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-stone-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-stone-400);
+}
+
+/* Staggered fade-in-up for filtered product cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Prose-like max-width for readability */
+.max-w-prose {
+  max-width: 65ch;
+}
