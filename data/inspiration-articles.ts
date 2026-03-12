@@ -14,7 +14,6 @@ export interface InspirationArticle {
     publishedAt: string;
     content: string;
     relatedSlugs: string[];
-    relatedProducts: string[]; // Airtable record IDs
 }
 
 const articles: InspirationArticle[] = [
@@ -33,7 +32,6 @@ const articles: InspirationArticle[] = [
         heroImage: null,
         publishedAt: "2026-03-11",
         relatedSlugs: ["minimalist-bedroom", "japandi-shelf-styling"],
-        relatedProducts: [],
         content: `## What Is Japandi Style?
 
 Japandi emerged as a named design movement around 2018, but its roots run deeper — it's the natural convergence of two cultures that share common ground. Japanese wabi-sabi and Scandinavian hygge both reject excess, celebrate craftsmanship, and believe that a home should restore you, not impress visitors.
@@ -110,7 +108,6 @@ The most Japanese design principle of all: let the room tell you what it needs �
         heroImage: null,
         publishedAt: "2026-03-11",
         relatedSlugs: ["hygge-evening-lighting", "minimalist-bedroom"],
-        relatedProducts: [],
         content: `## The Case for a Dedicated Reading Space
 
 Here's something that research consistently confirms: where you read matters as much as what you read. A 2019 study from the University of Valencia found that participants reading physical books in a low-distraction environment scored 29% higher in comprehension and retention compared to those reading the same material on screens in a shared living space.
@@ -190,7 +187,6 @@ Color rule: stay within your room's existing palette. A reading nook should feel
         heroImage: null,
         publishedAt: "2026-03-11",
         relatedSlugs: ["japandi-living-room", "hygge-evening-lighting"],
-        relatedProducts: [],
         content: `## The Science Behind Clutter and Sleep
 
 This isn't just aesthetics — there's measurable neuroscience at work. A 2015 study published in the journal *Sleep* found that individuals at risk of hoarding disorder reported significantly greater difficulty falling asleep, more frequent nighttime awakenings, and overall poorer sleep quality. Research from St. Lawrence University confirmed that people who described their bedrooms as "cluttered" took longer to fall asleep and experienced more restless nights than those in tidy rooms.
@@ -267,7 +263,6 @@ The goal isn't perfection. It's a space that actively supports the most importan
         heroImage: null,
         publishedAt: "2026-03-11",
         relatedSlugs: ["cozy-reading-nook", "minimalist-bedroom"],
-        relatedProducts: [],
         content: `## Why Lighting Is the Most Powerful (and Cheapest) Design Tool
 
 Walk into a room with a single overhead fluorescent light. Now walk into the same room with three table lamps, two candles, and the overhead light switched off. Same furniture. Same paint color. Completely different space. That's the power of lighting — and it might be the most underestimated tool in home design.
@@ -350,7 +345,6 @@ Within a week, this ritual becomes something you actively look forward to. It's 
         heroImage: null,
         publishedAt: "2026-03-11",
         relatedSlugs: ["japandi-living-room", "wabi-sabi-home"],
-        relatedProducts: [],
         content: `## Why Seasonal Refreshing Is a Nordic Survival Skill
 
 In Scandinavia, the home isn't static — it breathes with the calendar. This practice isn't decorating; it's a form of environmental self-care rooted in necessity. When winters deliver just six hours of pale daylight and summers stretch to eighteen hours of golden sun, the difference between a winter home and a spring home isn't aesthetic preference — it's mental health management.
@@ -439,7 +433,6 @@ Five changes, thirty minutes of effort, and your home shifts from winter cocoon 
         heroImage: null,
         publishedAt: "2026-03-11",
         relatedSlugs: ["japandi-living-room", "wabi-sabi-home"],
-        relatedProducts: [],
         content: `## The Problem With Most Shelves
 
 Walk through any home goods store and you'll see shelves styled to capacity — every centimeter occupied, every gap bridged, every surface layered with objects competing for attention. In photos, the effect reads as "curated." In real life, it creates the visual equivalent of noise. Your eye bounces from object to object, never landing, never resting. The result is subtle stress that you feel without being able to name.
@@ -536,7 +529,6 @@ Master this principle on a single shelf, and you'll find yourself editing every 
         heroImage: null,
         publishedAt: "2026-03-11",
         relatedSlugs: ["japandi-living-room", "japandi-shelf-styling"],
-        relatedProducts: [],
         content: `## What Is Wabi-Sabi?
 
 Wabi-sabi is a Japanese aesthetic philosophy rooted in Zen Buddhism that finds beauty in imperfection, impermanence, and incompleteness. The concept originated in the 16th-century tea ceremonies of Sen no Rikyū, the legendary tea master who rejected the ornate Chinese tea wares favored by the aristocracy and instead chose rough, handmade bowls with visible irregularities. He demonstrated that the crack in a ceramic vessel, the asymmetry of a hand-formed cup, the patina on aged wood — these weren't defects. They were the most beautiful part.
@@ -626,7 +618,6 @@ If you can answer yes, you're already practicing wabi-sabi — whether you knew 
         heroImage: null,
         publishedAt: "2026-03-11",
         relatedSlugs: ["minimalist-bedroom", "scandinavian-spring-refresh"],
-        relatedProducts: [],
         content: `## The Room That Collects the Most Clutter Per Square Foot
 
 Here's a statistic worth sitting with: the average American bathroom contains over 300 individual items, yet studies show most people regularly use fewer than 40 of them. That means roughly 85% of what's in your bathroom right now is expired, redundant, half-used, or forgotten — taking up space and creating visual noise in the room that should be the calmest in your home.

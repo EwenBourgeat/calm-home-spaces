@@ -6,7 +6,13 @@ import {
     getArticleBySlug,
     getRelatedArticles,
 } from "@/data/inspiration-articles";
-import { ArrowLeft, Clock, ArrowRight, ShoppingBag } from "lucide-react";
+import { ShopTheLook, type ShopProduct } from "@/components/ui/ShopTheLook";
+import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
+
+// ==============================================
+// ISR — Revalidate every hour so new products appear
+// ==============================================
+export const revalidate = 3600;
 
 // ==============================================
 // Static Params — pre-generate all 8 article pages
@@ -45,6 +51,92 @@ export async function generateMetadata({
             description: article.metaDescription,
         },
     };
+}
+
+// ==============================================
+// Product Matching Logic
+// ==============================================
+
+type MatchRule = {
+    categories?: string[];
+    subCategories?: string[];
+};
+
+const SLUG_PRODUCT_RULES: Record<string, MatchRule> = {
+    "japandi-living-room": {
+        categories: ["Salon"],
+        subCategories: ["Lighting"],
+    },
+    "cozy-reading-nook": {
+        subCategories: ["Lighting"],
+    },
+    "minimalist-bedroom": {
+        categories: ["Chambre"],
+    },
+    "hygge-evening-lighting": {
+        subCategories: ["Lighting"],
+    },
+    "scandinavian-spring-refresh": {
+        categories: ["Salon"],
+    },
+    "japandi-shelf-styling": {
+        categories: ["Salon"],
+    },
+    "wabi-sabi-home": {
+        categories: ["Salon"],
+    },
+    "minimalist-bathroom": {
+        categories: ["Salle de bain"],
+    },
+};
+
+function matchProducts(slug: string, allProducts: ShopProduct[]): ShopProduct[] {
+    const rule = SLUG_PRODUCT_RULES[slug];
+    if (!rule) return [];
+
+    const matched = allProducts.filter((p) => {
+        // Match by sub_category if specified (more specific match)
+        if (rule.subCategories && rule.subCategories.length > 0) {
+            if (rule.subCategories.some((sc) => p.sub_category === sc)) {
+                return true;
+            }
+        }
+        // Match by category
+        if (rule.categories && rule.categories.length > 0) {
+            if (rule.categories.some((c) => p.category === c)) {
+                return true;
+            }
+        }
+        return false;
+    });
+
+    // Sort alphabetically by clean_title, take first 3
+    matched.sort((a, b) => a.clean_title.localeCompare(b.clean_title));
+    return matched.slice(0, 3);
+}
+
+// ==============================================
+// Fetch products from API
+// ==============================================
+
+async function fetchProducts(): Promise<ShopProduct[]> {
+    try {
+        const baseUrl =
+            process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com";
+        const res = await fetch(`${baseUrl}/api/products`, {
+            next: { revalidate: 3600 },
+        });
+
+        if (!res.ok) return [];
+
+        const data = await res.json();
+        // Handle both array and { products: [] } error shape
+        if (Array.isArray(data)) return data;
+        return data.products || [];
+    } catch (error) {
+        console.error("[Inspiration] Failed to fetch products:", error);
+        return [];
+    }
 }
 
 // ==============================================
@@ -156,6 +248,10 @@ export default async function InspirationArticlePage({
 
     const relatedArticles = getRelatedArticles(article.relatedSlugs);
 
+    // Fetch products and match for this article
+    const allProducts = await fetchProducts();
+    const matchedProducts = matchProducts(slug, allProducts);
+
     // JSON-LD structured data for SEO
     const jsonLd = {
         "@context": "https://schema.org",
@@ -224,32 +320,8 @@ export default async function InspirationArticlePage({
                 {renderMarkdown(article.content)}
             </div>
 
-            {/* ── Shop the Look (only if relatedProducts provided) ── */}
-            {article.relatedProducts.length > 0 && (
-                <section className="border-t border-stone-200/60 py-16 px-4">
-                    <div className="mx-auto max-w-3xl">
-                        <div className="flex items-center gap-2 mb-8">
-                            <ShoppingBag className="w-4 h-4 text-stone-400" />
-                            <h2 className="font-serif text-xl text-stone-800">
-                                Shop the Look
-                            </h2>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {article.relatedProducts.map((productId) => (
-                                <Link
-                                    key={productId}
-                                    href={`/product/${productId}`}
-                                    className="group block rounded-xl bg-white p-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 text-center"
-                                >
-                                    <span className="text-sm font-serif text-stone-700 group-hover:text-forest transition-colors duration-200">
-                                        View Product →
-                                    </span>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
+            {/* ── Shop the Look (dynamic products) ── */}
+            <ShopTheLook products={matchedProducts} />
 
             {/* ── Related Articles ── */}
             {relatedArticles.length > 0 && (
