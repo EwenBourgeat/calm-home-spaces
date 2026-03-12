@@ -78,15 +78,9 @@ function ProductCard({ product }: { product: ShopProduct }) {
                     </p>
                 )}
 
-                <div className="mt-3 flex items-center justify-between">
-                    {product.price_usd !== null && (
-                        <span className="text-sm font-medium text-stone-800">
-                            ${product.price_usd.toFixed(2)}
-                        </span>
-                    )}
-
+                <div className="mt-3">
                     <span className="text-[11px] tracking-wide uppercase text-stone-400 group-hover:text-[#8B7355] transition-colors duration-200">
-                        View Product
+                        View Product →
                     </span>
                 </div>
             </div>

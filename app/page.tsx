@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getAllProductGroups } from "@/lib/airtable";
+import Image from "next/image";
+import { getAllProductGroups, getAllProducts } from "@/lib/airtable";
 import { getAllArticles } from "@/data/inspiration-articles";
 import { ProductGrid } from "@/components/ui/ProductGrid";
 import { Sparkles, BookOpen, ArrowRight, Clock } from "lucide-react";
@@ -15,14 +16,43 @@ const categoryColors: Record<string, string> = {
   Scandinavian: "bg-sky-100/40",
 };
 
+// Slug → product matching rules for hero images
+const SLUG_RULES: Record<string, { categories?: string[]; subCategories?: string[] }> = {
+  "japandi-living-room": { categories: ["Salon"], subCategories: ["Lighting"] },
+  "cozy-reading-nook": { subCategories: ["Lighting"] },
+  "minimalist-bedroom": { categories: ["Chambre"] },
+  "hygge-evening-lighting": { subCategories: ["Lighting"] },
+  "scandinavian-spring-refresh": { categories: ["Salon"] },
+  "japandi-shelf-styling": { categories: ["Salon"] },
+  "wabi-sabi-home": { categories: ["Salon"] },
+  "minimalist-bathroom": { categories: ["Salle de bain"] },
+};
+
 /**
  * Homepage — "Digital Decor Magazine" landing page.
  * Displays a curated grid of product groups from Airtable with category filters.
  */
 export default async function HomePage() {
-  const groups = await getAllProductGroups();
+  const [groups, allProducts] = await Promise.all([
+    getAllProductGroups(),
+    getAllProducts(),
+  ]);
   const allArticles = getAllArticles();
   const featuredArticles = allArticles.slice(0, 3);
+
+  // Build hero image map for featured articles
+  const heroImages: Record<string, string | null> = {};
+  for (const article of featuredArticles) {
+    const rule = SLUG_RULES[article.slug];
+    if (!rule) { heroImages[article.slug] = null; continue; }
+    const matched = allProducts.filter((p) => {
+      if (rule.subCategories?.some((sc) => p.subCategory === sc)) return true;
+      if (rule.categories?.some((c) => p.category === c)) return true;
+      return false;
+    });
+    matched.sort((a, b) => a.title.localeCompare(b.title));
+    heroImages[article.slug] = matched[0]?.imageUrl || null;
+  }
 
   return (
     <div className="min-h-screen">
@@ -77,13 +107,30 @@ export default async function HomePage() {
                   animationFillMode: "backwards",
                 }}
               >
-                {/* Category color band */}
+                {/* Hero image or category color band */}
                 <div
-                  className={`h-32 ${categoryColors[article.category] || "bg-stone-100"} flex items-end p-4 relative overflow-hidden`}
+                  className={`relative h-36 ${!heroImages[article.slug] ? (categoryColors[article.category] || "bg-stone-100") : "bg-stone-100"} flex items-end p-4 overflow-hidden`}
                 >
-                  {/* Decorative element */}
-                  <div className="absolute top-3 right-3 w-16 h-16 rounded-full bg-white/20 blur-xl" />
-                  <span className="relative text-[10px] tracking-[0.15em] uppercase text-stone-600 font-sans bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full font-medium">
+                  {heroImages[article.slug] && (
+                    <Image
+                      src={heroImages[article.slug]!}
+                      alt={article.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      unoptimized
+                    />
+                  )}
+                  {heroImages[article.slug] && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+                  )}
+                  <span
+                    className={`relative z-10 text-[10px] tracking-[0.15em] uppercase font-sans px-3 py-1 rounded-full font-medium ${
+                      heroImages[article.slug]
+                        ? "text-white bg-white/20 backdrop-blur-sm"
+                        : "text-stone-600 bg-white/80 backdrop-blur-sm"
+                    }`}
+                  >
                     {article.category}
                   </span>
                 </div>
