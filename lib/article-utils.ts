@@ -50,8 +50,15 @@ export function getUniqueHeroImages<T>(
         });
 
         if (availableMatches.length > 0) {
-            // Sort to make selection deterministic
-            availableMatches.sort((a, b) => getTitle(a).localeCompare(getTitle(b)));
+            // Sort to make selection deterministic, and heavily prefer AI lifestyle images!
+            availableMatches.sort((a, b) => {
+                const aAi = (a as any).hasAiImage ? 1 : 0;
+                const bAi = (b as any).hasAiImage ? 1 : 0;
+                if (aAi !== bAi) {
+                    return bAi - aAi; // 1 (has AI) comes before 0
+                }
+                return getTitle(a).localeCompare(getTitle(b));
+            });
             const chosenImage = getImageUrl(availableMatches[0]);
             
             if (chosenImage) {

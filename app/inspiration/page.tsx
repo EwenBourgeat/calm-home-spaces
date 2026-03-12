@@ -31,31 +31,7 @@ const categoryColors: Record<string, string> = {
 // Product fetching
 // ==============================================
 
-interface ApiProduct {
-    id: string;
-    clean_title: string;
-    category: string;
-    sub_category: string;
-    product_image_url: string;
-}
-
-async function fetchProducts(): Promise<ApiProduct[]> {
-    try {
-        const baseUrl =
-            process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com";
-        const res = await fetch(`${baseUrl}/api/products`, {
-            next: { revalidate: 3600 },
-        });
-
-        if (!res.ok) return [];
-
-        const data = await res.json();
-        if (Array.isArray(data)) return data;
-        return data.products || [];
-    } catch {
-        return [];
-    }
-}
+import { getAllProducts } from "@/lib/airtable";
 
 // ==============================================
 // Page Component
@@ -63,15 +39,15 @@ async function fetchProducts(): Promise<ApiProduct[]> {
 
 export default async function InspirationIndexPage() {
     const articles = await getAllArticles();
-    const products = await fetchProducts();
+    const products = await getAllProducts();
 
     const heroImages = getUniqueHeroImages(
         articles.map((a) => a.slug),
         products,
         (p) => p.category,
-        (p) => p.sub_category, // ApiProduct has sub_category
-        (p) => p.product_image_url,
-        (p) => p.clean_title
+        (p) => p.subCategory,
+        (p) => p.imageUrl,
+        (p) => p.title
     );
 
     return (

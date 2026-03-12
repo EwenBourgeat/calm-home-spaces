@@ -16,6 +16,7 @@ export interface ProductRecord {
     description: string;
     images: ProductImage[];
     imageUrl: string;
+    hasAiImage: boolean;
     imageWidth: number;
     imageHeight: number;
     amazonUrl: string;
@@ -135,7 +136,8 @@ function mapRecord(
     }));
 
     const aiImages = generatedImages?.get(record.id);
-    const allImages = aiImages && aiImages.length > 0 ? aiImages : originalImages;
+    const hasAiImage = aiImages !== undefined && aiImages.length > 0;
+    const allImages = hasAiImage ? aiImages : originalImages;
     const primaryImage = allImages[0];
 
     return {
@@ -144,6 +146,7 @@ function mapRecord(
         description: description || "",
         images: allImages,
         imageUrl: primaryImage.url,
+        hasAiImage,
         imageWidth: primaryImage.width,
         imageHeight: primaryImage.height,
         amazonUrl: affiliateLink,
