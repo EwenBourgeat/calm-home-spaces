@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import { Header } from "@/components/ui/Header";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 import "./globals.css";
 
 // ===================================
@@ -67,6 +68,25 @@ export default function RootLayout({
         <main>{children}</main>
         <Analytics />
         <SpeedInsights />
+
+        {/* Google Analytics */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-379T9YTE1W"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'G-379T9YTE1W');
+            `,
+          }}
+        />
       </body>
     </html>
   );
