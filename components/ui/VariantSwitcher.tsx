@@ -92,6 +92,8 @@ export function VariantSwitcher({ variants, initialVariantId }: VariantSwitcherP
                 <StickyBuyButton
                     amazonUrl={active.amazonUrl}
                     productTitle={active.title}
+                    productId={active.id}
+                    priceUsd={active.price}
                 />
             </div>
         </div>

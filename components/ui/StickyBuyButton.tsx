@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 interface StickyBuyButtonProps {
     amazonUrl: string;
     productTitle: string;
+    productId: string;
+    priceUsd: number | null;
 }
 
 /**
@@ -15,7 +17,21 @@ interface StickyBuyButtonProps {
  * - Always includes the FTC/Amazon affiliate disclaimer
  * - Uses rel="nofollow noreferrer noopener" for link safety
  */
-export function StickyBuyButton({ amazonUrl, productTitle }: StickyBuyButtonProps) {
+export function StickyBuyButton({
+    amazonUrl,
+    productTitle,
+    productId,
+    priceUsd,
+}: StickyBuyButtonProps) {
+    const trackClick = () => {
+        // Asynchronous fire-and-forget; never blocks the user from going to Amazon
+        fetch("/api/track-click", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, title: productTitle, priceUsd }),
+        }).catch((err) => console.error("Tracking error:", err));
+    };
+
     return (
         <>
             {/* ========================================
@@ -26,6 +42,7 @@ export function StickyBuyButton({ amazonUrl, productTitle }: StickyBuyButtonProp
                     href={amazonUrl}
                     target="_blank"
                     rel="nofollow noreferrer noopener"
+                    onClick={trackClick}
                     aria-label={`View ${productTitle} on Amazon`}
                     className={cn(
                         "inline-flex items-center justify-center gap-3",
@@ -53,6 +70,7 @@ export function StickyBuyButton({ amazonUrl, productTitle }: StickyBuyButtonProp
                     href={amazonUrl}
                     target="_blank"
                     rel="nofollow noreferrer noopener"
+                    onClick={trackClick}
                     aria-label={`View ${productTitle} on Amazon`}
                     className={cn(
                         "flex items-center justify-center gap-3 w-full",

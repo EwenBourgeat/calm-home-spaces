@@ -4,6 +4,7 @@ import { getProduct, getProductVariants } from "@/lib/airtable";
 import { VariantSwitcher } from "@/components/ui/VariantSwitcher";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { PinterestPageTracker } from "@/components/ui/PinterestPageTracker";
 
 // ===================================
 // ISR Configuration
@@ -78,6 +79,16 @@ export default async function ProductPage({
 
     return (
         <article className="min-h-screen pb-32 md:pb-16">
+            <PinterestPageTracker
+                eventName="PageVisit"
+                customData={{
+                    content_ids: [product.id],
+                    content_name: product.title,
+                    value: product.price || undefined,
+                    currency: "USD",
+                }}
+            />
+            
             {/* Spacer for fixed header */}
             <div className="pt-20" />
 

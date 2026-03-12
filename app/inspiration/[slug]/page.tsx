@@ -8,6 +8,7 @@ import {
 } from "@/data/inspiration-articles";
 import { ShopTheLook, type ShopProduct } from "@/components/ui/ShopTheLook";
 import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
+import { PinterestPageTracker } from "@/components/ui/PinterestPageTracker";
 
 // ==============================================
 // ISR — Revalidate every hour so new products appear
@@ -272,6 +273,10 @@ export default async function InspirationArticlePage({
 
     return (
         <article className="min-h-screen">
+            <PinterestPageTracker
+                eventName="ViewContent"
+                customData={{ content_name: article.slug }}
+            />
             {/* JSON-LD Schema */}
             <script
                 type="application/ld+json"
