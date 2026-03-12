@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getAllArticles } from "@/data/inspiration-articles";
 import { Sparkles, Clock, ArrowRight, ShoppingBag } from "lucide-react";
 import { getUniqueHeroImages } from "@/lib/article-utils";
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -99,81 +100,71 @@ export default async function InspirationIndexPage() {
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 md:auto-rows-[250px] gap-4">
                         {articles.map((article, index) => {
                             const heroUrl = heroImages[article.slug];
+                            const isLarge = index % 5 === 0;
 
                             return (
                                 <Link
                                     key={article.slug}
                                     href={`/inspiration/${article.slug}`}
-                                    className="group block rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-fade-in-up"
+                                    className={cn(
+                                        "group block rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 relative flex flex-col justify-end animate-fade-in-up",
+                                        !heroUrl ? "bg-stone-800" : "bg-stone-200",
+                                        isLarge ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "col-span-1 row-span-1 min-h-[250px] md:h-full"
+                                    )}
                                     style={{
                                         animationDelay: `${index * 80}ms`,
                                         animationFillMode: "backwards",
                                     }}
                                 >
-                                    {/* Hero image or color band */}
-                                    <div
-                                        className={`relative h-48 ${
-                                            !heroUrl
-                                                ? categoryColors[article.category] || "bg-stone-100"
-                                                : "bg-stone-100"
-                                        } flex items-end p-5 overflow-hidden`}
-                                    >
-                                        {heroUrl && (
-                                            <Image
-                                                src={heroUrl}
-                                                alt={article.title}
-                                                fill
-                                                sizes="(max-width: 768px) 100vw, 50vw"
-                                                className="object-cover group-hover:scale-105 transition-transform duration-700"
-                                                unoptimized
-                                            />
-                                        )}
-                                        {/* Gradient overlay for readability */}
-                                        {heroUrl && (
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-                                        )}
-                                        <div className="relative z-10 flex flex-wrap items-center gap-2">
-                                            <span
-                                                className={`text-[10px] tracking-[0.15em] uppercase font-sans px-3 py-1 rounded-full ${
-                                                    heroUrl
-                                                        ? "text-white bg-white/20 backdrop-blur-sm"
-                                                        : "text-stone-500 bg-white/70 backdrop-blur-sm"
-                                                }`}
-                                            >
+                                    {/* Hero image */}
+                                    {heroUrl && (
+                                        <Image
+                                            src={heroUrl}
+                                            alt={article.title}
+                                            fill
+                                            sizes={isLarge ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
+                                            className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                            unoptimized
+                                        />
+                                    )}
+
+                                    {/* Gradient overlay for readability */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5" />
+
+                                    {/* Card body */}
+                                    <div className="relative z-10 p-5 md:p-6 w-full">
+                                        {/* Top badging */}
+                                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                                            <span className="text-[9px] tracking-[0.15em] uppercase font-sans px-2.5 py-1 rounded-full font-medium text-white bg-white/20 backdrop-blur-md border border-white/10">
                                                 {article.category}
                                             </span>
                                             {heroUrl && (
-                                                <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-white bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+                                                <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-white bg-black/40 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
                                                     <ShoppingBag className="w-2.5 h-2.5" />
                                                     Shoppable
                                                 </span>
                                             )}
                                         </div>
-                                    </div>
 
-                                    {/* Card body */}
-                                    <div className="p-5">
-                                        <h3 className="font-serif text-lg text-stone-800 leading-snug group-hover:text-forest transition-colors duration-200">
+                                        <h3 className={cn(
+                                            "font-serif text-white leading-snug group-hover:text-stone-200 transition-colors duration-200",
+                                            isLarge ? "text-2xl md:text-3xl lg:text-4xl mb-3" : "text-lg md:text-base lg:text-lg mb-2 line-clamp-2"
+                                        )}>
                                             {article.title}
                                         </h3>
-                                        <p className="mt-2 text-sm text-stone-500 leading-relaxed line-clamp-2">
-                                            {article.subtitle}
-                                        </p>
 
-                                        <div className="mt-4 flex items-center justify-between">
-                                            <div className="flex items-center gap-1.5 text-stone-400">
-                                                <Clock className="w-3.5 h-3.5" />
-                                                <span className="text-xs">
-                                                    {article.readTime}
-                                                </span>
-                                            </div>
-                                            <span className="flex items-center gap-1 text-xs text-stone-400 group-hover:text-forest transition-colors duration-200">
-                                                Read
-                                                <ArrowRight className="w-3.5 h-3.5" />
-                                            </span>
+                                        {isLarge && (
+                                            <p className="hidden md:block text-stone-300 text-sm leading-relaxed mb-4 line-clamp-2">
+                                                {article.subtitle}
+                                            </p>
+                                        )}
+
+                                        <div className="flex items-center gap-1.5 text-stone-300 opacity-80 group-hover:opacity-100 transition-opacity">
+                                            <Clock className="w-3 h-3" />
+                                            <span className="text-[11px]">{article.readTime}</span>
                                         </div>
                                     </div>
                                 </Link>
