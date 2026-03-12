@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BlurImage } from "@/components/ui/BlurImage";
+import Image from "next/image";
 import { getAllProductGroups, getAllProducts } from "@/lib/airtable";
 import { getAllArticles } from "@/lib/airtable-articles";
 import { ProductGrid } from "@/components/ui/ProductGrid";
@@ -101,7 +101,7 @@ export default async function HomePage() {
                 >
                   {/* Hero image */}
                   {heroUrl && (
-                    <BlurImage
+                    <Image
                       src={heroUrl}
                       alt={article.title}
                       fill

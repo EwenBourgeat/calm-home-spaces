@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BlurImage } from "@/components/ui/BlurImage";
+import Image from "next/image";
 import { getAllArticles } from "@/lib/airtable-articles";
 import { Sparkles, Clock, ArrowRight, ShoppingBag } from "lucide-react";
 import { getUniqueHeroImages } from "@/lib/article-utils";
@@ -121,7 +121,7 @@ export default async function InspirationIndexPage() {
                                 >
                                     {/* Hero image */}
                                     {heroUrl && (
-                                        <BlurImage
+                                        <Image
                                             src={heroUrl}
                                             alt={article.title}
                                             fill
