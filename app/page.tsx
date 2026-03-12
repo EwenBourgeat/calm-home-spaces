@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getAllProductGroups } from "@/lib/airtable";
 import { getAllArticles } from "@/data/inspiration-articles";
 import { ProductGrid } from "@/components/ui/ProductGrid";
@@ -149,15 +148,9 @@ export default async function HomePage() {
           ======================================== */}
       <footer className="border-t border-stone-200/60 py-10 px-4">
         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <Link href="/">
-            <Image
-              src="/logo.jpeg"
-              alt="CalmHomeSpaces"
-              width={120}
-              height={35}
-              className="h-7 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity"
-            />
-          </Link>
+          <span className="font-serif text-xs tracking-[0.2em] text-stone-400">
+            CALM HOME SPACES
+          </span>
           <div className="flex items-center gap-4">
             <Link
               href="/privacy"

@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /**
  * Sticky Header with glass morphism effect on scroll.
- * Features the CalmHomeSpaces logo and prominent navigation.
+ * Minimalist branding — "CALM HOME SPACES" in serif tracking-widest.
  */
 export function Header() {
     const [scrolled, setScrolled] = useState(false);
@@ -30,16 +29,11 @@ export function Header() {
                     : "bg-transparent"
             )}
         >
-            <nav className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between">
-                <Link href="/" className="group flex items-center gap-0">
-                    <Image
-                        src="/logo.jpeg"
-                        alt="CalmHomeSpaces"
-                        width={180}
-                        height={52}
-                        className="h-10 md:h-12 w-auto object-contain"
-                        priority
-                    />
+            <nav className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
+                <Link href="/" className="group">
+                    <span className="font-serif text-sm tracking-[0.25em] text-stone-800 group-hover:text-forest transition-colors duration-200">
+                        CALM HOME SPACES
+                    </span>
                 </Link>
 
                 {/* Navigation */}
