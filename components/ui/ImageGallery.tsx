@@ -105,7 +105,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
           "w-10 h-10 rounded-full",
           "bg-white/80 backdrop-blur-sm shadow-md",
           "flex items-center justify-center",
-          "opacity-0 group-hover:opacity-100",
+          "opacity-0 md:opacity-40 group-hover:opacity-100",
           "transition-all duration-300 ease-out",
           "hover:bg-white hover:scale-105",
           "active:scale-95 disabled:opacity-0"
@@ -126,7 +126,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
           "w-10 h-10 rounded-full",
           "bg-white/80 backdrop-blur-sm shadow-md",
           "flex items-center justify-center",
-          "opacity-0 group-hover:opacity-100",
+          "opacity-0 md:opacity-40 group-hover:opacity-100",
           "transition-all duration-300 ease-out",
           "hover:bg-white hover:scale-105",
           "active:scale-95 disabled:opacity-0"

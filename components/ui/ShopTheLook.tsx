@@ -86,7 +86,7 @@ export function ShopTheLook({ products }: { products: ProductRecord[] }) {
     if (products.length === 0) return null;
 
     return (
-        <section className="py-16 px-4" style={{ backgroundColor: "#EDE8E0" }}>
+        <section className="py-20 px-4 scroll-mt-24" style={{ backgroundColor: "#EDE8E0" }}>
             <div className="mx-auto max-w-3xl">
                 {/* Separator */}
                 <div className="w-12 h-px bg-[#C4B9A8] mb-8" />

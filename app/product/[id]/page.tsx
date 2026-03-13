@@ -101,7 +101,7 @@ export default async function ProductPage({
     };
 
     return (
-        <article className="min-h-screen pb-32 md:pb-16">
+        <article className="min-h-screen pb-40 md:pb-16">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -117,7 +117,7 @@ export default async function ProductPage({
             />
             
             {/* Spacer for fixed header */}
-            <div className="pt-20" />
+            <div className="pt-24" />
 
             {/* Back navigation */}
             <div className="mx-auto max-w-5xl px-4 py-4">

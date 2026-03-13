@@ -65,7 +65,7 @@ export function StickyBuyButton({
             {/* ========================================
           Mobile Sticky CTA — fixed at viewport bottom
           ======================================== */}
-            <div className="fixed bottom-0 left-0 right-0 z-40 p-4 pb-6 md:hidden bg-gradient-to-t from-cream via-cream/95 to-transparent">
+            <div className="fixed bottom-0 left-0 right-0 z-40 p-4 pb-6 md:hidden bg-cream/95 backdrop-blur-md border-t border-stone-200/40">
                 <a
                     href={amazonUrl}
                     target="_blank"

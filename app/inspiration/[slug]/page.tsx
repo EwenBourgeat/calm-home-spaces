@@ -61,12 +61,27 @@ export async function generateMetadata({
 import { getAllProducts, type ProductRecord } from "@/lib/airtable";
 import { getUniqueHeroImages } from "@/lib/article-utils";
 
-function matchProducts(articleProductIds: string[] | undefined, allProducts: ProductRecord[]): ProductRecord[] {
-    if (!articleProductIds || articleProductIds.length === 0) return [];
+function matchProducts(articleProductIds: string[] | undefined, allProducts: ProductRecord[], category?: string): ProductRecord[] {
+    const matchedById = (articleProductIds && articleProductIds.length > 0)
+        ? allProducts.filter((p) => articleProductIds.includes(p.id))
+        : [];
 
-    const matched = allProducts.filter((p) => articleProductIds.includes(p.id));
-    matched.sort((a, b) => a.title.localeCompare(b.title));
-    return matched.slice(0, 3);
+    if (matchedById.length > 0) {
+        matchedById.sort((a, b) => a.title.localeCompare(b.title));
+        return matchedById.slice(0, 3);
+    }
+
+    // Fallback: match by category if no explicit IDs (common in Airtable sync)
+    if (category) {
+        const matchedByCategory = allProducts.filter(p => 
+            p.category.toLowerCase() === category.toLowerCase() ||
+            p.subCategory.toLowerCase() === category.toLowerCase()
+        );
+        matchedByCategory.sort(() => 0.5 - Math.random()); // Random selection for variety
+        return matchedByCategory.slice(0, 3);
+    }
+
+    return [];
 }
 
 // ==============================================
@@ -185,7 +200,7 @@ export default async function InspirationArticlePage({
 
     // Fetch products and match for this article
     const allProducts = await getAllProducts();
-    const matchedProducts = matchProducts(article.productReferences, allProducts);
+    const matchedProducts = matchProducts(article.productReferences, allProducts, article.category);
 
     const heroImages = getUniqueHeroImages(
         [article.slug],
@@ -228,7 +243,7 @@ export default async function InspirationArticlePage({
     }
 
     return (
-        <article className="min-h-screen">
+        <article className="min-h-screen pb-40 md:pb-16">
             <PinterestPageTracker
                 eventName="ViewContent"
                 customData={{ content_name: article.slug }}
@@ -240,7 +255,7 @@ export default async function InspirationArticlePage({
             />
 
             {/* Spacer for fixed header */}
-            <div className="pt-20" />
+            <div className="pt-24" />
 
             {/* Back navigation */}
             <div className="mx-auto max-w-3xl px-4 py-4">
