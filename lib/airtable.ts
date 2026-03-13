@@ -76,7 +76,7 @@ async function getGeneratedImagesByProduct(): Promise<Map<string, ProductImage[]
         for (const record of records) {
             const productLinks = record.fields["Product"] as string[] | undefined;
             const media = record.fields["Generated_Media"] as
-                | Array<{ url: string; width?: number; height?: number }>
+                | Array<{ url: string; width?: number; height?: number; thumbnails?: { large?: { url: string; width: number; height: number }; full?: { url: string; width: number; height: number } } }>
                 | undefined;
 
             if (!productLinks || productLinks.length === 0 || !media || media.length === 0) {
@@ -84,11 +84,14 @@ async function getGeneratedImagesByProduct(): Promise<Map<string, ProductImage[]
             }
 
             const productId = productLinks[0];
-            const images: ProductImage[] = media.map((img) => ({
-                url: img.url,
-                width: img.width || 896,
-                height: img.height || 1152,
-            }));
+            const images: ProductImage[] = media.map((img) => {
+                const thumb = img.thumbnails?.large || img.thumbnails?.full;
+                return {
+                    url: thumb?.url || img.url,
+                    width: thumb?.width || img.width || 896,
+                    height: thumb?.height || img.height || 1152,
+                };
+            });
 
             const existing = result.get(productId) ?? [];
             result.set(productId, [...existing, ...images]);
@@ -122,18 +125,21 @@ function mapRecord(
     const colorVariant = fields["Color_Variant"] as string | undefined;
 
     const media = fields["Product_Image"] as
-        | Array<{ url: string; width?: number; height?: number }>
+        | Array<{ url: string; width?: number; height?: number; thumbnails?: { large?: { url: string; width: number; height: number }; full?: { url: string; width: number; height: number } } }>
         | undefined;
 
     if (!title || !affiliateLink || !media || media.length === 0) {
         return null;
     }
 
-    const originalImages: ProductImage[] = media.map((img) => ({
-        url: img.url,
-        width: img.width || 800,
-        height: img.height || 1000,
-    }));
+    const originalImages: ProductImage[] = media.map((img) => {
+        const thumb = img.thumbnails?.large || img.thumbnails?.full;
+        return {
+            url: thumb?.url || img.url,
+            width: thumb?.width || img.width || 800,
+            height: thumb?.height || img.height || 1000,
+        };
+    });
 
     const aiImages = generatedImages?.get(record.id);
     const hasAiImage = aiImages !== undefined && aiImages.length > 0;
