@@ -48,7 +48,7 @@ export async function generateMetadata({
                     alt: product.title,
                 },
             ],
-            type: "article",
+            type: "website",
         },
         twitter: {
             card: "summary_large_image",
@@ -77,8 +77,35 @@ export default async function ProductPage({
     // Fetch all variants for this product (including the current one)
     const variants = await getProductVariants(product.parentProduct);
 
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com";
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": product.title,
+        "image": product.imageUrl,
+        "description": product.description,
+        "sku": product.id,
+        "offers": {
+            "@type": "Offer",
+            "url": `${baseUrl}/product/${product.id}`,
+            "priceCurrency": "USD",
+            "price": product.price?.toString() || "0.00",
+            "itemCondition": "https://schema.org/NewCondition",
+            "availability": "https://schema.org/InStock",
+            "seller": {
+                "@type": "Organization",
+                "name": "Calm Home Spaces"
+            }
+        }
+    };
+
     return (
         <article className="min-h-screen pb-32 md:pb-16">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <PinterestPageTracker
                 eventName="PageVisit"
                 customData={{

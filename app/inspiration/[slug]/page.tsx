@@ -5,7 +5,7 @@ import {
     getAllArticles,
     getArticleBySlug,
 } from "@/lib/airtable-articles";
-import { ShopTheLook, type ShopProduct } from "@/components/ui/ShopTheLook";
+import { ShopTheLook } from "@/components/ui/ShopTheLook";
 import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
 import { PinterestPageTracker } from "@/components/ui/PinterestPageTracker";
 
@@ -58,38 +58,15 @@ export async function generateMetadata({
 // Product Matching Logic
 // ==============================================
 
-function matchProducts(articleProductIds: string[] | undefined, allProducts: ShopProduct[]): ShopProduct[] {
+import { getAllProducts, type ProductRecord } from "@/lib/airtable";
+import { getUniqueHeroImages } from "@/lib/article-utils";
+
+function matchProducts(articleProductIds: string[] | undefined, allProducts: ProductRecord[]): ProductRecord[] {
     if (!articleProductIds || articleProductIds.length === 0) return [];
 
     const matched = allProducts.filter((p) => articleProductIds.includes(p.id));
-
-    // Sort alphabetically and return max 3
-    matched.sort((a, b) => a.clean_title.localeCompare(b.clean_title));
+    matched.sort((a, b) => a.title.localeCompare(b.title));
     return matched.slice(0, 3);
-}
-
-// ==============================================
-// Fetch products from API
-// ==============================================
-
-async function fetchProducts(): Promise<ShopProduct[]> {
-    try {
-        const baseUrl =
-            process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com";
-        const res = await fetch(`${baseUrl}/api/products`, {
-            next: { revalidate: 3600 },
-        });
-
-        if (!res.ok) return [];
-
-        const data = await res.json();
-        // Handle both array and { products: [] } error shape
-        if (Array.isArray(data)) return data;
-        return data.products || [];
-    } catch (error) {
-        console.error("[Inspiration] Failed to fetch products:", error);
-        return [];
-    }
 }
 
 // ==============================================
@@ -207,11 +184,21 @@ export default async function InspirationArticlePage({
         .slice(0, 2);
 
     // Fetch products and match for this article
-    const allProducts = await fetchProducts();
+    const allProducts = await getAllProducts();
     const matchedProducts = matchProducts(article.productReferences, allProducts);
 
+    const heroImages = getUniqueHeroImages(
+        [article.slug],
+        allProducts,
+        (p) => p.category,
+        (p) => p.subCategory,
+        (p) => p.imageUrl,
+        (p) => p.title
+    );
+    const heroUrl = heroImages[article.slug];
+
     // JSON-LD structured data for SEO
-    const jsonLd = {
+    const jsonLd: any = {
         "@context": "https://schema.org",
         "@type": "Article",
         headline: article.title,
@@ -225,8 +212,20 @@ export default async function InspirationArticlePage({
             "@type": "Organization",
             name: "Calm Home Spaces",
             url: "https://calmhomespaces.com",
+            logo: {
+                "@type": "ImageObject",
+                url: "https://calmhomespaces.com/icon.jpeg"
+            }
         },
+        mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": `https://calmhomespaces.com/inspiration/${article.slug}`
+        }
     };
+
+    if (heroUrl) {
+        jsonLd.image = heroUrl;
+    }
 
     return (
         <article className="min-h-screen">

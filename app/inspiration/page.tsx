@@ -11,9 +11,14 @@ export const metadata: Metadata = {
     description:
         "Discover curated articles on Japandi style, hygge living, and minimalist home decor. Ideas and guides for creating calm, beautiful spaces.",
     openGraph: {
-        title: "Inspiration — Calm Home Ideas",
+        title: "Inspiration — Calm Home Ideas | Calm Home Spaces",
         description:
             "Curated articles on Japandi style, hygge living, and minimalist decor for calm, beautiful spaces.",
+        url: "/inspiration",
+        type: "website",
+    },
+    alternates: {
+        canonical: "/inspiration",
     },
 };
 
@@ -50,8 +55,27 @@ export default async function InspirationIndexPage() {
         (p) => p.title
     );
 
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com";
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Inspiration — Calm Home Ideas",
+        "description": "Ideas and guides for creating calm, minimal, and beautiful living spaces.",
+        "url": `${baseUrl}/inspiration`,
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "Calm Home Spaces",
+            "url": baseUrl
+        }
+    };
+
     return (
         <div className="min-h-screen">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             {/* Hero */}
             <section className="pt-28 pb-12 px-4">
                 <div className="mx-auto max-w-3xl text-center">

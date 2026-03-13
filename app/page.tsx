@@ -40,8 +40,38 @@ export default async function HomePage() {
     (p) => p.title
   );
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${process.env.NEXT_PUBLIC_SITE_URL}/#website`,
+        "url": process.env.NEXT_PUBLIC_SITE_URL,
+        "name": "Calm Home Spaces",
+        "description": "Discover beautifully curated home decor pieces. Handpicked lighting, furniture, and accessories for your calm, cozy living space.",
+        "publisher": {
+          "@id": `${process.env.NEXT_PUBLIC_SITE_URL}/#organization`
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": `${process.env.NEXT_PUBLIC_SITE_URL}/#organization`,
+        "name": "Calm Home Spaces",
+        "url": process.env.NEXT_PUBLIC_SITE_URL,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${process.env.NEXT_PUBLIC_SITE_URL}/icon.jpeg`
+        }
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ========================================
           Hero Section
           ======================================== */}

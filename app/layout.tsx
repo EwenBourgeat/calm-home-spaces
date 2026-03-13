@@ -38,14 +38,36 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com"
   ),
+  keywords: ["home decor", "Japandi", "Scandinavian design", "cozy interiors", "minimalist living", "interior design trends"],
+  authors: [{ name: "Calm Home Spaces" }],
+  creator: "Calm Home Spaces",
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: "Calm Home Spaces",
+    title: "Calm Home Spaces — Curated Home Decor",
+    description: "Discover beautifully curated home decor pieces. Handpicked lighting, furniture, and accessories for your calm, cozy living space.",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Calm Home Spaces — Curated Home Decor",
+    description: "Discover beautifully curated home decor pieces.",
+    creator: "@calmhomespaces",
+  },
+  alternates: {
+    canonical: "/",
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   other: {
     "p:domain_verify": "95dfd2ae32e229fcb10f2c450f8478e4",

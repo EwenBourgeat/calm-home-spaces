@@ -9,16 +9,7 @@ import { ShoppingBag } from "lucide-react";
 // Types
 // ==============================================
 
-export interface ShopProduct {
-    id: string;
-    clean_title: string;
-    category: string;
-    sub_category: string;
-    price_usd: number | null;
-    color_variant: string;
-    bridge_url: string;
-    product_image_url: string;
-}
+import type { ProductRecord } from "@/lib/airtable";
 
 // Category → placeholder background
 const categoryPlaceholders: Record<string, string> = {
@@ -32,12 +23,12 @@ const categoryPlaceholders: Record<string, string> = {
 // Product Card
 // ==============================================
 
-function ProductCard({ product }: { product: ShopProduct }) {
+function ProductCard({ product }: { product: ProductRecord }) {
     const [imgError, setImgError] = useState(false);
 
     return (
         <Link
-            href={product.bridge_url}
+            href={`/product/${product.id}`}
             className="group flex-shrink-0 w-[220px] md:w-auto snap-start block rounded-xl bg-white overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
         >
             {/* Image — 1:1 ratio */}
@@ -50,8 +41,8 @@ function ProductCard({ product }: { product: ShopProduct }) {
             >
                 {!imgError ? (
                     <Image
-                        src={product.product_image_url}
-                        alt={product.clean_title}
+                        src={product.imageUrl}
+                        alt={product.title}
                         fill
                         sizes="(max-width: 768px) 220px, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -68,12 +59,12 @@ function ProductCard({ product }: { product: ShopProduct }) {
             {/* Info */}
             <div className="p-4">
                 <h3 className="font-sans text-sm text-stone-700 leading-snug line-clamp-2 group-hover:text-stone-900 transition-colors duration-200">
-                    {product.clean_title}
+                    {product.title}
                 </h3>
 
-                {product.color_variant && (
+                {product.colorVariant && (
                     <p className="mt-1 text-[11px] text-stone-400">
-                        {product.color_variant}
+                        {product.colorVariant}
                     </p>
                 )}
 
@@ -91,7 +82,7 @@ function ProductCard({ product }: { product: ShopProduct }) {
 // Shop the Look Section
 // ==============================================
 
-export function ShopTheLook({ products }: { products: ShopProduct[] }) {
+export function ShopTheLook({ products }: { products: ProductRecord[] }) {
     if (products.length === 0) return null;
 
     return (
