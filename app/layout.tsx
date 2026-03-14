@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     creator: "@calmhomespaces",
   },
   alternates: {
-    canonical: "/",
+    canonical: "./",
   },
   robots: {
     index: true,

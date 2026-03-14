@@ -56,6 +56,9 @@ export async function generateMetadata({
             description: truncatedDescription,
             images: [product.imageUrl],
         },
+        alternates: {
+            canonical: `/product/${product.id}`,
+        },
     };
 }
 

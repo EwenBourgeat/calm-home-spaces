@@ -7,9 +7,17 @@ import { Sparkles, BookOpen, Clock, ShoppingBag, ArrowRight } from "lucide-react
 import { getUniqueHeroImages } from "@/lib/article-utils";
 import { cn } from "@/lib/utils";
 
+import type { Metadata } from "next";
+
 // Force dynamic rendering — Airtable attachment URLs are signed and expire
 // after a few hours, so we must fetch fresh URLs on every request.
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 // Category → muted background color
 const categoryColors: Record<string, string> = {
@@ -40,27 +48,29 @@ export default async function HomePage() {
     (p) => p.title
   );
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": `${process.env.NEXT_PUBLIC_SITE_URL}/#website`,
-        "url": process.env.NEXT_PUBLIC_SITE_URL,
+        "@id": `${baseUrl}/#website`,
+        "url": baseUrl,
         "name": "Calm Home Spaces",
         "description": "Discover beautifully curated home decor pieces. Handpicked lighting, furniture, and accessories for your calm, cozy living space.",
         "publisher": {
-          "@id": `${process.env.NEXT_PUBLIC_SITE_URL}/#organization`
+          "@id": `${baseUrl}/#organization`
         }
       },
       {
         "@type": "Organization",
-        "@id": `${process.env.NEXT_PUBLIC_SITE_URL}/#organization`,
+        "@id": `${baseUrl}/#organization`,
         "name": "Calm Home Spaces",
-        "url": process.env.NEXT_PUBLIC_SITE_URL,
+        "url": baseUrl,
         "logo": {
           "@type": "ImageObject",
-          "url": `${process.env.NEXT_PUBLIC_SITE_URL}/icon.jpeg`
+          "url": `${baseUrl}/icon.jpeg`
         }
       }
     ]

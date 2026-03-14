@@ -51,6 +51,9 @@ export async function generateMetadata({
             title: article.title,
             description: article.metaDescription,
         },
+        alternates: {
+            canonical: `/inspiration/${slug}`,
+        },
     };
 }
 
@@ -73,10 +76,16 @@ function matchProducts(articleProductIds: string[] | undefined, allProducts: Pro
 
     // Fallback: match by category if no explicit IDs (common in Airtable sync)
     if (category) {
-        const matchedByCategory = allProducts.filter(p => 
-            p.category.toLowerCase() === category.toLowerCase() ||
-            p.subCategory.toLowerCase() === category.toLowerCase()
-        );
+        const cat = category.toLowerCase();
+        const matchedByCategory = allProducts.filter(p => {
+            const pCat = p.category.toLowerCase();
+            const pSub = p.subCategory.toLowerCase();
+            return pCat.includes(cat) || cat.includes(pCat) || 
+                   pSub.includes(cat) || cat.includes(pSub) ||
+                   (cat === "japandi style" && (pCat === "salon" || pCat === "chambre")) ||
+                   (cat === "cozy living" && (pCat === "chambre" || pCat === "salon")) ||
+                   (cat === "scandinavian" && pCat === "salon");
+        });
         matchedByCategory.sort(() => 0.5 - Math.random()); // Random selection for variety
         return matchedByCategory.slice(0, 3);
     }
@@ -212,6 +221,8 @@ export default async function InspirationArticlePage({
     );
     const heroUrl = heroImages[article.slug];
 
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com";
+
     // JSON-LD structured data for SEO
     const jsonLd: any = {
         "@context": "https://schema.org",
@@ -226,15 +237,15 @@ export default async function InspirationArticlePage({
         publisher: {
             "@type": "Organization",
             name: "Calm Home Spaces",
-            url: "https://calmhomespaces.com",
+            url: baseUrl,
             logo: {
                 "@type": "ImageObject",
-                url: "https://calmhomespaces.com/icon.jpeg"
+                url: `${baseUrl}/icon.jpeg`
             }
         },
         mainEntityOfPage: {
             "@type": "WebPage",
-            "@id": `https://calmhomespaces.com/inspiration/${article.slug}`
+            "@id": `${baseUrl}/inspiration/${article.slug}`
         }
     };
 
