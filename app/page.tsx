@@ -95,6 +95,20 @@ export default async function HomePage() {
           <p className="mt-6 text-stone-500 text-lg leading-relaxed max-w-xl mx-auto">
             Discover our selection of carefully chosen decor pieces to create warm, calming, and timeless spaces.
           </p>
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/shop"
+              className="w-full sm:w-auto px-8 py-4 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase font-semibold rounded-full hover:bg-forest transition-all duration-300 shadow-lg shadow-stone-200"
+            >
+              Browse Shop
+            </Link>
+            <Link
+              href="/inspiration"
+              className="w-full sm:w-auto px-8 py-4 bg-white text-stone-900 border border-stone-200 text-xs tracking-[0.2em] uppercase font-semibold rounded-full hover:bg-stone-50 transition-all duration-300"
+            >
+              Read Blog
+            </Link>
+          </div>
         </div>
       </section>
 

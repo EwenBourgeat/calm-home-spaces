@@ -36,7 +36,12 @@ const categoryColors: Record<string, string> = {
 // Product fetching
 // ==============================================
 
-import { getAllProducts } from "@/lib/airtable";
+// ==============================================
+// Product fetching
+// ==============================================
+
+import { getAllProducts, getAllProductGroups } from "@/lib/airtable";
+import { ProductGrid } from "@/components/ui/ProductGrid";
 
 // ==============================================
 // Page Component
@@ -171,6 +176,23 @@ export default async function InspirationIndexPage() {
                             );
                         })}
                     </div>
+                </div>
+            </section>
+
+            {/* ==============================================
+                New Section: Shop the Collection
+                ============================================== */}
+            <section className="px-4 pb-24 border-t border-stone-200/60 pt-20">
+                <div className="mx-auto max-w-6xl">
+                    <div className="flex items-center gap-2 mb-8">
+                        <ShoppingBag className="w-4 h-4 text-stone-400" />
+                        <h2 className="text-xs tracking-[0.2em] uppercase text-stone-400 font-sans">
+                            Shop the Look
+                        </h2>
+                    </div>
+                    {products.length > 0 && (
+                        <ProductGrid groups={await getAllProductGroups()} />
+                    )}
                 </div>
             </section>
 
