@@ -1,67 +1,51 @@
 import Airtable from "airtable";
 import { getAllArticles } from "../data/inspiration-articles";
-import dotenv from "dotenv";
-import path from "path";
 
-// Load environment variables from .env.local
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
-
+// Use environment variables or hardcode for local script execution
+// You must run this script with `npx tsx scripts/migrate-articles.ts`
 const apiKey = process.env.AIRTABLE_API_KEY;
 const baseId = process.env.AIRTABLE_BASE_ID;
 
 if (!apiKey || !baseId) {
-    console.error("Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID in .env.local");
+    console.error("Missing AIRTABLE_API_KEY or AIRTABLE_BASE_ID in environment.");
     process.exit(1);
 }
 
 const base = new Airtable({ apiKey }).base(baseId);
 const TABLE_NAME = "Articles";
 
-async function migrate() {
-    console.log("Starting migration of articles to Airtable...");
-    const localArticles = getAllArticles();
+async function run() {
+    const articles = getAllArticles();
+    console.log(`Found ${articles.length} articles to migrate...`);
 
-    for (const article of localArticles) {
+    for (const article of articles) {
+        console.log(`Migrating: ${article.title}`);
+
         try {
-            console.log(`Migrating: ${article.title}`);
-            
-            // Check if article already exists by slug
-            const existingRecords = await base(TABLE_NAME)
-                .select({
-                    filterByFormula: `{Slug} = '${article.slug}'`,
-                    maxRecords: 1,
-                })
-                .all();
-
-            const fields = {
-                "Titre_Article": article.title,
-                "Contenu": article.content,
-                "Slug": article.slug,
-                "Subtitle": article.subtitle,
-                "Category": article.category,
-                "Read_Time": article.readTime,
-                "Meta_Description": article.metaDescription,
-                "Published_At": article.publishedAt,
-                // "References_Produit": article.productReferences || [], // Handled separately or as string IDs
-            };
-
-            if (existingRecords.length > 0) {
-                console.log(`Updating existing record for ${article.slug}`);
-                await base(TABLE_NAME).update(existingRecords[0].id, fields);
-            } else {
-                console.log(`Creating new record for ${article.slug}`);
-                await base(TABLE_NAME).create([
-                    {
-                        fields: fields
-                    }
-                ]);
-            }
+            await base(TABLE_NAME).create([
+                {
+                    fields: {
+                        Titre_Article: article.title,
+                        Subtitle: article.subtitle,
+                        Category: article.category,
+                        Slug: article.slug,
+                        Read_Time: article.readTime,
+                        Meta_Description: article.metaDescription,
+                        Published_At: article.publishedAt,
+                        Contenu: article.content,
+                        // References_Produit is intentionally left blank here
+                        // as we don't have the Airtable record IDs for the products 
+                        // in the static file. You can link them manually later.
+                    },
+                },
+            ]);
+            console.log(`✅ Success: ${article.slug}`);
         } catch (error) {
-            console.error(`Error migrating ${article.title}:`, error);
+            console.error(`❌ Failed to migrate ${article.slug}:`, error);
         }
     }
 
-    console.log("Migration finished!");
+    console.log("Migration complete!");
 }
 
-migrate();
+run();

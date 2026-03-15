@@ -22,6 +22,12 @@ export async function GET() {
         <priority>0.9</priority>
     </url>
     <url>
+        <loc>${baseUrl}/shop</loc>
+        <lastmod>${new Date().toISOString()}</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
         <loc>${baseUrl}/privacy</loc>
         <lastmod>${new Date().toISOString()}</lastmod>
         <changefreq>yearly</changefreq>
