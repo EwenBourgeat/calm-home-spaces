@@ -10,9 +10,8 @@ import { Footer } from "@/components/ui/Footer";
 
 import type { Metadata } from "next";
 
-// Force dynamic rendering — Airtable attachment URLs are signed and expire
-// after a few hours, so we must fetch fresh URLs on every request.
-export const revalidate = 0;
+// ISR — revalidate every hour to get fresh product images
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   alternates: {

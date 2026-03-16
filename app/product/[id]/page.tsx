@@ -8,8 +8,8 @@ import { PinterestPageTracker } from "@/components/ui/PinterestPageTracker";
 
 // ===================================
 // ISR Configuration
-// Force dynamic rendering — Airtable attachment URLs expire
-export const revalidate = 0;
+// ISR Configuration — revalidate every hour for fresh URLs
+export const revalidate = 3600;
 
 // ===================================
 // Dynamic SEO Metadata

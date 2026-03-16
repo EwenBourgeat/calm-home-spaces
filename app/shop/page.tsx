@@ -4,7 +4,8 @@ import { ShoppingBag, Sparkles } from "lucide-react";
 import { Footer } from "@/components/ui/Footer";
 import type { Metadata } from "next";
 
-export const revalidate = 0;
+// ISR — revalidate every hour to get fresh product images
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Shop — The Curated Collection",
