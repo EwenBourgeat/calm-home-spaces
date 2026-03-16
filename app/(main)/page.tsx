@@ -7,6 +7,7 @@ import { Sparkles, BookOpen, Clock, ShoppingBag, ArrowRight } from "lucide-react
 import { getUniqueHeroImages } from "@/lib/article-utils";
 import { cn } from "@/lib/utils";
 import { Footer } from "@/components/ui/Footer";
+import { EmailCapture } from "@/components/ui/EmailCapture";
 
 import type { Metadata } from "next";
 
@@ -240,6 +241,11 @@ export default async function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Newsletter Section with Anchor ID */}
+      <div id="subscribe">
+        <EmailCapture />
+      </div>
 
       {/* ========================================
           Footer
