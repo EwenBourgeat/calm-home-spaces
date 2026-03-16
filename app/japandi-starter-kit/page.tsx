@@ -1,8 +1,21 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 import { Footer } from "@/components/ui/Footer";
 import Airtable from "airtable";
 
 export const revalidate = 3600;
+
+interface StarterProduct {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  price: number;
+  link: string;
+  image: string;
+}
 
 const STARTER_KIT_TITLES = [
   "Ceramic Rattan Table Lamp | Japandi Minimalist Decor",
