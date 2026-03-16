@@ -22,8 +22,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Call Kit V4 API
-    const response = await fetch(`https://api.kit.com/v4/forms/${FORM_ID}/subscribers`, {
+    // Verified Kit V4 Upsert Endpoint
+    const response = await fetch("https://api.kit.com/v4/subscribers", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         email_address: email,
+        form_id: Number(FORM_ID),
       }),
     });
 
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Newsletter Subscription Error:", error);
     return NextResponse.json(
-      { error: "Failed to join. Please try again later." },
+      { error: `Subscription Error: ${error.message || "Unknown error"}` },
       { status: 500 }
     );
   }
