@@ -49,7 +49,7 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
     const [productRecords, pinRecords] = await Promise.all([
       base(tableName).select({
         filterByFormula: filterFormula,
-        fields: ["Clean_Title", "Clean_Description", "Affiliate_Link"]
+        fields: ["Clean_Title", "Clean_Description", "Affiliate_Link", "Product_Image"]
       }).all(),
       base(pinsTableName).select({
         fields: ["Product", "Generated_Media"],
@@ -76,6 +76,10 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
       if (!record) return null;
 
       const fields = record.fields;
+      const productImages = fields["Product_Image"] as any[] | undefined;
+      const fallbackImage = (productImages && productImages.length > 0) 
+        ? (productImages[0].thumbnails?.large?.url || productImages[0].thumbnails?.full?.url || productImages[0].url)
+        : null;
       
       return {
         id: record.id,
@@ -83,7 +87,7 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
         title: (fields["Clean_Title"] as string).split("|")[0].trim(),
         description: (fields["Clean_Description"] as string || "").slice(0, 100),
         link: fields["Affiliate_Link"] as string,
-        image: pinImageMap.get(record.id) || null
+        image: pinImageMap.get(record.id) || fallbackImage
       };
     }).filter((p): p is StarterProduct => p !== null);
   } catch (error) {
