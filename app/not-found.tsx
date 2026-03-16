@@ -36,8 +36,8 @@ export default function NotFound() {
                 </Link>
 
                 {/* Branding */}
-                <div className="mt-12 flex flex-col items-center gap-4">
-                    <img src="/logo.ico" alt="" className="w-8 h-8 object-contain" />
+                <div className="mt-12 flex flex-col items-center gap-5">
+                    <img src="/logo.ico" alt="" className="w-12 h-12 object-contain" />
                     <p className="font-serif text-xs tracking-[0.2em] text-stone-300">
                         CALM HOME SPACES
                     </p>

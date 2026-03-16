@@ -5,9 +5,9 @@ export function Footer() {
     <footer className="border-t border-stone-200/60 py-10 px-4 bg-white">
       <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex flex-col items-center md:items-start gap-4">
-          <Link href="/" className="flex items-center gap-4 group">
-            <img src="/logo.ico" alt="" className="w-10 h-10 object-contain" />
-            <span className="font-serif text-xs tracking-[0.2em] text-stone-900 font-semibold group-hover:text-forest transition-colors">
+          <Link href="/" className="flex items-center gap-5 group">
+            <img src="/logo.ico" alt="" className="w-14 h-14 object-contain" />
+            <span className="font-serif text-sm tracking-[0.2em] text-stone-900 font-semibold group-hover:text-forest transition-colors">
               CALM HOME SPACES
             </span>
           </Link>

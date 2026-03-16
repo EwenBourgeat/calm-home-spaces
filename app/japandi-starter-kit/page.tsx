@@ -110,8 +110,8 @@ export default async function StarterKitPage() {
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
       {/* Minimalist Header */}
-      <header className="py-8 px-4 flex flex-col items-center gap-6">
-        <img src="/logo.ico" alt="" className="w-16 h-16 object-contain" />
+      <header className="py-8 px-4 flex flex-col items-center gap-8">
+        <img src="/logo.ico" alt="" className="w-24 h-24 object-contain" />
         <Link href="/" className="font-serif text-lg tracking-[0.3em] text-stone-900 font-bold">
           CALM HOME SPACES
         </Link>
