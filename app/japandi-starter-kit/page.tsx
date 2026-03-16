@@ -12,9 +12,8 @@ interface StarterProduct {
   number: string;
   title: string;
   description: string;
-  price: number;
   link: string;
-  image: string;
+  image: string | null;
 }
 
 const STARTER_KIT_TITLES = [
@@ -34,9 +33,10 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
   const apiKey = process.env.AIRTABLE_API_KEY;
   const baseId = process.env.AIRTABLE_BASE_ID;
   const tableName = process.env.AIRTABLE_TABLE_NAME || "Products";
+  const pinsTableName = "Pin (Post)";
 
   if (!apiKey || !baseId) {
-    console.error("[Starter Kit] Missing Airtable check");
+    console.error("[Starter Kit] Missing Airtable configuration");
     return [];
   }
 
@@ -45,26 +45,45 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
   try {
     const filterFormula = `OR(${STARTER_KIT_TITLES.map(title => `{Clean_Title} = '${title.replace(/'/g, "\\'")}'`).join(",")})`;
 
-    const records = await base(tableName).select({
-      filterByFormula: filterFormula,
-      fields: ["Clean_Title", "Clean_Description", "Price_USD", "Affiliate_Link", "Product_Image"]
-    }).all();
+    // Fetch Products and Pins in parallel
+    const [productRecords, pinRecords] = await Promise.all([
+      base(tableName).select({
+        filterByFormula: filterFormula,
+        fields: ["Clean_Title", "Clean_Description", "Affiliate_Link"]
+      }).all(),
+      base(pinsTableName).select({
+        fields: ["Product", "Generated_Media"],
+        filterByFormula: "NOT({Generated_Media} = '')"
+      }).all()
+    ]);
+
+    // Map pin images to product IDs
+    const pinImageMap = new Map<string, string>();
+    pinRecords.forEach(record => {
+      const productIds = record.fields["Product"] as string[] | undefined;
+      const media = record.fields["Generated_Media"] as any[] | undefined;
+      
+      if (productIds && productIds.length > 0 && media && media.length > 0) {
+        const productId = productIds[0];
+        const thumb = media[0].thumbnails?.large || media[0].thumbnails?.full;
+        const imageUrl = thumb?.url || media[0].url;
+        if (imageUrl) pinImageMap.set(productId, imageUrl);
+      }
+    });
 
     return STARTER_KIT_TITLES.map((title, index) => {
-      const record = records.find(r => r.fields["Clean_Title"] === title);
+      const record = productRecords.find(r => r.fields["Clean_Title"] === title);
       if (!record) return null;
 
       const fields = record.fields;
-      const images = fields["Product_Image"] as any[];
       
       return {
         id: record.id,
         number: (index + 1).toString().padStart(2, '0'),
         title: (fields["Clean_Title"] as string).split("|")[0].trim(),
         description: (fields["Clean_Description"] as string || "").slice(0, 100),
-        price: fields["Price_USD"] as number,
         link: fields["Affiliate_Link"] as string,
-        image: images && images.length > 0 ? images[0].url : null
+        image: pinImageMap.get(record.id) || null
       };
     }).filter((p): p is StarterProduct => p !== null);
   } catch (error) {
@@ -80,16 +99,6 @@ export const metadata: Metadata = {
     canonical: "/japandi-starter-kit",
   },
 };
-
-interface StarterProduct {
-  id: string;
-  number: string;
-  title: string;
-  description: string;
-  price: number;
-  link: string;
-  image: string;
-}
 
 export default async function StarterKitPage() {
   const products = await getStarterKitProducts();
@@ -146,15 +155,11 @@ export default async function StarterKitPage() {
                   <h3 className="font-serif text-lg md:text-xl text-stone-900 mb-2 leading-snug">
                     {product.title}
                   </h3>
-                  <p className="text-stone-500 text-sm mb-4 line-clamp-2 leading-relaxed">
+                  <p className="text-stone-500 text-sm mb-6 line-clamp-2 leading-relaxed">
                     {product.description}
                   </p>
                   
                   <div className="mt-auto pt-2">
-                    <div className="text-stone-900 font-medium text-sm mb-4">
-                      ${product.price}
-                    </div>
-                    
                     <a
                       href={product.link}
                       target="_blank"
@@ -178,11 +183,8 @@ export default async function StarterKitPage() {
       {/* Compliance Section */}
       <section className="px-4 py-16 border-t border-stone-200/50 bg-white/50">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-[10px] text-stone-400 italic mb-2">
-            As an Amazon Associate, I earn from qualifying purchases.
-          </p>
-          <p className="text-[10px] text-stone-400">
-            Prices shown are approximate and may vary. Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}.
+          <p className="text-[10px] text-stone-400 italic">
+            As an Amazon Associate, I earn from qualifying purchases. Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}.
           </p>
         </div>
       </section>
