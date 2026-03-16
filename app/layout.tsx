@@ -74,6 +74,7 @@ export const metadata: Metadata = {
   },
   other: {
     "p:domain_verify": "95dfd2ae32e229fcb10f2c450f8478e4",
+    "impact-site-verification": "8f97a22b-2f7d-4216-9699-3b2577c1aea3",
   },
   icons: {
     icon: "/favicon.png",
