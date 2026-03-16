@@ -30,14 +30,12 @@ export function Header() {
             )}
         >
             <nav className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
-                <Link href="/" className="group flex items-center gap-3">
-                    <div className="relative w-8 h-8 rounded-full overflow-hidden bg-white shadow-sm transition-transform group-hover:scale-110">
-                        <img 
-                            src="/logo.ico" 
-                            alt="Calm Home Spaces Logo" 
-                            className="w-full h-full object-contain"
-                        />
-                    </div>
+                <Link href="/" className="group flex items-center gap-4">
+                    <img 
+                        src="/logo.ico" 
+                        alt="Calm Home Spaces Logo" 
+                        className="w-12 h-12 object-contain transition-transform group-hover:scale-105"
+                    />
                     <span className="font-serif text-sm tracking-[0.25em] text-stone-800 group-hover:text-forest transition-colors duration-200">
                         CALM HOME SPACES
                     </span>
