@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Newsletter Subscription Error:", error);
     return NextResponse.json(
-      { error: `Subscription Error: ${error.message || "Unknown error"}` },
+      { error: "Could not join the newsletter. Please try again later." },
       { status: 500 }
     );
   }
