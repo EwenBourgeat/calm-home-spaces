@@ -1,6 +1,7 @@
 import { getAllProductGroups } from "@/lib/airtable";
 import { ProductGrid } from "@/components/ui/ProductGrid";
-import { Sparkles, ShoppingBag } from "lucide-react";
+import { ShoppingBag, Sparkles } from "lucide-react";
+import { Footer } from "@/components/ui/Footer";
 import type { Metadata } from "next";
 
 export const revalidate = 0;
@@ -51,6 +52,7 @@ export default async function ShopPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

@@ -8,6 +8,8 @@ import {
 import { ShopTheLook } from "@/components/ui/ShopTheLook";
 import { ArrowLeft, Clock, ArrowRight } from "lucide-react";
 import { PinterestPageTracker } from "@/components/ui/PinterestPageTracker";
+import { EmailCapture } from "@/components/ui/EmailCapture";
+import { Footer } from "@/components/ui/Footer";
 
 // ==============================================
 // ISR — Revalidate every hour so new products appear
@@ -310,6 +312,9 @@ export default async function InspirationArticlePage({
             {/* ── Shop the Look (dynamic products) ── */}
             <ShopTheLook products={matchedProducts} />
 
+            {/* ── Email Capture ── */}
+            <EmailCapture />
+
             {/* ── Related Articles ── */}
             {relatedArticles.length > 0 && (
                 <section className="border-t border-stone-200/60 py-16 px-4">
@@ -342,16 +347,7 @@ export default async function InspirationArticlePage({
             )}
 
             {/* Footer */}
-            <footer className="border-t border-stone-200/60 py-10 px-4">
-                <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
-                    <span className="font-serif text-xs tracking-[0.2em] text-stone-400">
-                        CALM HOME SPACES
-                    </span>
-                    <p className="text-[10px] text-stone-400 text-center md:text-right max-w-sm leading-relaxed">
-                        As an Amazon Associate, we earn from qualifying purchases.
-                    </p>
-                </div>
-            </footer>
+            <Footer />
         </article>
     );
 }

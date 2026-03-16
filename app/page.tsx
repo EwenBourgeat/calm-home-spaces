@@ -6,6 +6,7 @@ import { ProductGrid } from "@/components/ui/ProductGrid";
 import { Sparkles, BookOpen, Clock, ShoppingBag, ArrowRight } from "lucide-react";
 import { getUniqueHeroImages } from "@/lib/article-utils";
 import { cn } from "@/lib/utils";
+import { Footer } from "@/components/ui/Footer";
 
 import type { Metadata } from "next";
 
@@ -243,25 +244,7 @@ export default async function HomePage() {
       {/* ========================================
           Footer
           ======================================== */}
-      <footer className="border-t border-stone-200/60 py-10 px-4">
-        <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-serif text-xs tracking-[0.2em] text-stone-400">
-            CALM HOME SPACES
-          </span>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/privacy"
-              className="text-[10px] text-stone-400 hover:text-stone-600 transition-colors"
-            >
-              Privacy Policy
-            </Link>
-            <span className="text-stone-200">|</span>
-            <p className="text-[10px] text-stone-400 text-center md:text-right max-w-sm leading-relaxed">
-              As an Amazon Associate, we earn from qualifying purchases.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

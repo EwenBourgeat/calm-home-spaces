@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { Header } from "@/components/ui/Header";
+import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
@@ -88,6 +89,7 @@ export default function RootLayout({
       <body className="bg-cream text-stone-900 font-sans antialiased min-h-screen">
         <Header />
         <main>{children}</main>
+        <ExitIntentPopup />
         <Analytics />
         <SpeedInsights />
 
