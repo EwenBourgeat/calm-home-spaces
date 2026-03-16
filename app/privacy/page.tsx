@@ -133,10 +133,10 @@ export default function PrivacyPolicyPage() {
                                                 <>
                                                     refers to Calm Home Spaces, accessible from{" "}
                                                     <a
-                                                        href="https://calmhomespaces.vercel.app"
+                                                        href="https://calmhomespaces.com"
                                                         className="text-stone-800 underline underline-offset-2 hover:text-forest transition-colors"
                                                     >
-                                                        https://calmhomespaces.vercel.app
+                                                        https://calmhomespaces.com
                                                     </a>
                                                     .
                                                 </>
@@ -166,12 +166,20 @@ export default function PrivacyPolicyPage() {
                                     contact or identify You. Personally identifiable information
                                     may include, but is not limited to:
                                 </p>
+                                <BulletList
+                                    items={[
+                                        "Email address",
+                                        "Usage Data",
+                                    ]}
+                                />
 
                                 <h4 className="font-serif text-lg text-stone-800 mt-6 mb-2">
                                     Usage Data
                                 </h4>
                                 <p>
-                                    Usage Data is collected automatically when using the Service.
+                                    Usage Data is collected automatically when using the Service. 
+                                    We use <strong>Vercel Analytics</strong> and <strong>Google Analytics</strong> 
+                                    to help us understand how visitors interact with our site.
                                 </p>
                                 <p>
                                     Usage Data may include information such as Your Device&apos;s
@@ -232,12 +240,10 @@ export default function PrivacyPolicyPage() {
                                 </p>
                                 <p>
                                     Where required by law, we use non-essential cookies (such as
-                                    analytics, advertising, and remarketing cookies) only with Your
+                                    analytics and measurement cookies) only with Your
                                     consent. You can withdraw or change Your consent at any time
-                                    using Our cookie preferences tool (if available) or through
-                                    Your browser/device settings. Withdrawing consent does not
-                                    affect the lawfulness of processing based on consent before its
-                                    withdrawal.
+                                    by clearing your browser cache or using the "Privacy Settings" 
+                                    banner available on our site.
                                 </p>
                                 <p>
                                     We use both Session and Persistent Cookies for the purposes set
@@ -355,9 +361,10 @@ export default function PrivacyPolicyPage() {
                                 <BulletList
                                     items={[
                                         <>
-                                            <strong>With Service Providers:</strong> We may share Your
-                                            Personal Data with Service Providers to monitor and analyze
-                                            the use of our Service, to contact You.
+                                            <strong>With Service Providers:</strong> We share your email address with 
+                                            <strong> Kit (formerly ConvertKit)</strong> to deliver our newsletter and 
+                                            the lead magnets you requested. We use <strong>Vercel</strong> for hosting and 
+                                            platform analytics.
                                         </>,
                                         <>
                                             <strong>For business transfers:</strong> We may share or

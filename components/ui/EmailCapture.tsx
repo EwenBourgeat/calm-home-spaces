@@ -5,12 +5,13 @@ import { Send, Leaf, Sparkles, Loader2 } from "lucide-react";
 
 export function EmailCapture() {
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !consent) return;
 
     setStatus("loading");
     try {
@@ -68,30 +69,63 @@ export function EmailCapture() {
             10 curated products for a calm, minimal home — delivered straight to your inbox.
           </p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="flex-grow px-6 py-4 rounded-full bg-stone-800 border border-stone-700 text-white placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-600 transition-all font-sans"
-              disabled={status === "loading"}
-            />
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="px-8 py-4 bg-white text-stone-900 rounded-full font-semibold text-xs uppercase tracking-[0.15em] hover:bg-stone-200 transition-all shadow-lg flex items-center justify-center gap-2 group whitespace-nowrap"
-            >
-              {status === "loading" ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <span>Send me the guide</span>
-                  <Send className="w-3.5 h-3.5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </>
-              )}
-            </button>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                className="flex-grow px-6 py-4 rounded-full bg-stone-800 border border-stone-700 text-white placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-600 transition-all font-sans"
+                disabled={status === "loading"}
+              />
+              <button
+                type="submit"
+                disabled={status === "loading" || !consent}
+                className="px-8 py-4 bg-white text-stone-900 rounded-full font-semibold text-xs uppercase tracking-[0.15em] hover:bg-stone-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg flex items-center justify-center gap-2 group whitespace-nowrap"
+              >
+                {status === "loading" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <span>Send me the guide</span>
+                    <Send className="w-3.5 h-3.5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </>
+                )}
+              </button>
+            </div>
+
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative flex items-center mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  required
+                  className="peer h-4 w-4 appearance-none rounded border border-stone-700 bg-stone-800 checked:bg-forest checked:border-forest transition-all"
+                />
+                <svg
+                  className="absolute h-4 w-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity p-0.5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <span className="text-[11px] text-stone-500 leading-tight group-hover:text-stone-400 transition-colors">
+                I agree to join the newsletter and receive decor inspiration. I have read the{" "}
+                <a href="/privacy" target="_blank" className="underline hover:text-white">
+                  Privacy Policy
+                </a>
+                .
+              </span>
+            </label>
           </form>
 
           {status === "error" && (

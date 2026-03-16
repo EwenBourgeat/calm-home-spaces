@@ -4,7 +4,9 @@ import { Header } from "@/components/ui/Header";
 import { ExitIntentPopup } from "@/components/ui/ExitIntentPopup";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 import Script from "next/script";
+import { headers } from "next/headers";
 import "./globals.css";
 
 // ===================================
@@ -90,27 +92,33 @@ export default function RootLayout({
         <Header />
         <main>{children}</main>
         <ExitIntentPopup />
+        <CookieBanner />
         <Analytics />
         <SpeedInsights />
 
-        {/* Google Analytics */}
-        <Script
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-379T9YTE1W"
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
+        {/* Dynamic Client-side Analytics Trigger */}
+        <Script id="analytics-consent-handler" strategy="afterInteractive">
+          {`
+            (function() {
+              const consent = localStorage.getItem('calm_cookie_consent');
+              if (consent === 'granted') {
+                const gtagId = 'G-379T9YTE1W';
+                const s = document.createElement('script');
+                s.async = true;
+                s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gtagId;
+                document.head.appendChild(s);
 
-              gtag('config', 'G-379T9YTE1W');
-            `,
-          }}
-        />
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', gtagId, {
+                  'anonymize_ip': true,
+                  'cookie_flags': 'SameSite=None;Secure'
+                });
+              }
+            })();
+          `}
+        </Script>
       </body>
     </html>
   );
