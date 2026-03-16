@@ -76,9 +76,9 @@ export const metadata: Metadata = {
     "p:domain_verify": "95dfd2ae32e229fcb10f2c450f8478e4",
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
