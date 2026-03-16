@@ -71,7 +71,7 @@ export default async function HomePage() {
         "url": baseUrl,
         "logo": {
           "@type": "ImageObject",
-          "url": `${baseUrl}/icon.jpeg`
+          "url": `${baseUrl}/logo.ico`
         }
       }
     ]

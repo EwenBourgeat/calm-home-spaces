@@ -242,7 +242,7 @@ export default async function InspirationArticlePage({
             url: baseUrl,
             logo: {
                 "@type": "ImageObject",
-                url: `${baseUrl}/icon.jpeg`
+                url: `${baseUrl}/logo.ico`
             }
         },
         mainEntityOfPage: {
