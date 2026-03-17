@@ -1,69 +1,52 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Gift } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { X } from "lucide-react";
 import { EmailCapture } from "./EmailCapture";
 
 export function ExitIntentPopup() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [visible, setVisible] = useState(false);
 
-  useEffect(() => {
-    // Only run on desktop
+  const handleMouseLeave = useCallback((e: MouseEvent) => {
+    // Only trigger when mouse exits toward the top of the screen
+    if (e.clientY > 20) return;
+
+    // Don't show on mobile
     if (window.innerWidth < 768) return;
 
-    // Check if shown in current session
-    const hasShown = sessionStorage.getItem("calm_exit_popup_shown");
-    if (hasShown) return;
+    // Only show once per session
+    if (sessionStorage.getItem("exitPopupShown")) return;
 
-    const handleMouseLeave = (e: MouseEvent) => {
-      // Trigger when mouse leaves the viewport towards the top
-      if (e.clientY <= 0) {
-        setIsOpen(true);
-        sessionStorage.setItem("calm_exit_popup_shown", "true");
-        document.removeEventListener("mouseleave", handleMouseLeave);
-      }
-    };
+    sessionStorage.setItem("exitPopupShown", "true");
+    setVisible(true);
+  }, []);
+
+  useEffect(() => {
+    // Don't add listener if already shown this session
+    if (sessionStorage.getItem("exitPopupShown")) return;
 
     document.addEventListener("mouseleave", handleMouseLeave);
     return () => document.removeEventListener("mouseleave", handleMouseLeave);
-  }, []);
+  }, [handleMouseLeave]);
 
-  if (!isOpen) return null;
+  if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 animate-in fade-in duration-300">
-      <div 
-        className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" 
-        onClick={() => setIsOpen(false)}
-      />
-      
-      <div className="relative w-full max-w-xl bg-white rounded-[2rem] overflow-hidden shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-500">
-        <button 
-          onClick={() => setIsOpen(false)}
-          className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-900 transition-colors z-20"
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) setVisible(false);
+      }}
+    >
+      <div className="relative w-full max-w-2xl mx-4">
+        <button
+          onClick={() => setVisible(false)}
+          aria-label="Close"
+          className="absolute -top-4 -right-4 z-10 flex items-center justify-center w-9 h-9 rounded-full bg-stone-800 text-stone-300 hover:bg-stone-700 hover:text-white transition-colors shadow-lg"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
-
-        <div className="p-8 md:p-12">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-stone-100 rounded-lg text-stone-600">
-              <Gift className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-semibold font-sans">
-              Wait, don't leave empty handed
-            </span>
-          </div>
-
-          <h2 className="font-serif text-3xl text-stone-900 mb-4 leading-tight">
-            One last thing...
-          </h2>
-          <p className="text-stone-500 mb-8 font-sans leading-relaxed">
-            Get our exclusive <span className="font-semibold text-stone-800 italic">Japandi Guide</span> before you go. Join 5,000+ others creating calm spaces.
-          </p>
-
-          <EmailCapture />
-        </div>
+        <EmailCapture onSuccess={() => setVisible(false)} />
       </div>
     </div>
   );
