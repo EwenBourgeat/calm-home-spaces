@@ -13,7 +13,6 @@ interface StarterProduct {
   number: string;
   title: string;
   description: string;
-  price: string | null;
   link: string;
   image: string | null;
 }
@@ -54,7 +53,6 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
         fields: [
           "Clean_Title",
           "Clean_Description",
-          "Price_USD",
           "Affiliate_Link",
           "Product_Image",
         ],
@@ -74,15 +72,11 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
             productImages[0].url
           : null;
 
-      const rawPrice = fields["Price_USD"] as number | null | undefined;
-      const price = rawPrice ? `$${rawPrice.toFixed(0)}` : null;
-
       return {
         id: record.id,
         number: (index + 1).toString().padStart(2, "0"),
         title: (fields["Clean_Title"] as string).split("|")[0].trim(),
         description: ((fields["Clean_Description"] as string) || "").slice(0, 100),
-        price,
         link: fields["Affiliate_Link"] as string,
         image,
       };
@@ -168,12 +162,6 @@ export default async function StarterKitPage() {
                   <p className="text-stone-500 text-sm mb-3 line-clamp-2 leading-relaxed">
                     {product.description}
                   </p>
-
-                  {product.price && (
-                    <p className="text-stone-700 font-semibold text-sm mb-4">
-                      {product.price}
-                    </p>
-                  )}
 
                   <div className="mt-auto pt-2">
                     <a
