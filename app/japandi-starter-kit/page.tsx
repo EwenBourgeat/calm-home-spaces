@@ -13,6 +13,7 @@ interface StarterProduct {
   number: string;
   title: string;
   description: string;
+  price: string | null;
   link: string;
   image: string | null;
 }
@@ -27,14 +28,13 @@ const STARTER_KIT_TITLES = [
   "Modern Table Lamp | Japandi Bedside Light & Minimalist Decor",
   "Floating Shelves | Japandi & Minimalist Decor Ideas",
   "Round Wood Mirror | Japandi & Minimalist Wall Decor",
-  "Asymmetrical Wood Mirror | Minimalist & Japandi Decor"
+  "Asymmetrical Wood Mirror | Minimalist & Japandi Decor",
 ];
 
 async function getStarterKitProducts(): Promise<StarterProduct[]> {
   const apiKey = process.env.AIRTABLE_API_KEY;
   const baseId = process.env.AIRTABLE_BASE_ID;
   const tableName = process.env.AIRTABLE_TABLE_NAME || "Products";
-  const pinsTableName = "Pin (Post)";
 
   if (!apiKey || !baseId) {
     console.error("[Starter Kit] Missing Airtable configuration");
@@ -44,51 +44,47 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
   const base = new Airtable({ apiKey }).base(baseId);
 
   try {
-    const filterFormula = `OR(${STARTER_KIT_TITLES.map(title => `{Clean_Title} = '${title.replace(/'/g, "\\'")}'`).join(",")})`;
+    const filterFormula = `OR(${STARTER_KIT_TITLES.map(
+      (title) => `{Clean_Title} = '${title.replace(/'/g, "\\'")}'`
+    ).join(",")})`;
 
-    // Fetch Products and Pins in parallel
-    const [productRecords, pinRecords] = await Promise.all([
-      base(tableName).select({
+    const records = await base(tableName)
+      .select({
         filterByFormula: filterFormula,
-        fields: ["Clean_Title", "Clean_Description", "Affiliate_Link", "Product_Image"]
-      }).all(),
-      base(pinsTableName).select({
-        fields: ["Product", "Generated_Media"],
-        filterByFormula: "NOT({Generated_Media} = '')"
-      }).all()
-    ]);
-
-    // Map pin images to product IDs
-    const pinImageMap = new Map<string, string>();
-    pinRecords.forEach(record => {
-      const productIds = record.fields["Product"] as string[] | undefined;
-      const media = record.fields["Generated_Media"] as any[] | undefined;
-      
-      if (productIds && productIds.length > 0 && media && media.length > 0) {
-        const productId = productIds[0];
-        const thumb = media[0].thumbnails?.large || media[0].thumbnails?.full;
-        const imageUrl = thumb?.url || media[0].url;
-        if (imageUrl) pinImageMap.set(productId, imageUrl);
-      }
-    });
+        fields: [
+          "Clean_Title",
+          "Clean_Description",
+          "Price_USD",
+          "Affiliate_Link",
+          "Product_Image",
+        ],
+      })
+      .all();
 
     return STARTER_KIT_TITLES.map((title, index) => {
-      const record = productRecords.find(r => r.fields["Clean_Title"] === title);
+      const record = records.find((r) => r.fields["Clean_Title"] === title);
       if (!record) return null;
 
       const fields = record.fields;
       const productImages = fields["Product_Image"] as any[] | undefined;
-      const fallbackImage = (productImages && productImages.length > 0) 
-        ? (productImages[0].thumbnails?.large?.url || productImages[0].thumbnails?.full?.url || productImages[0].url)
-        : null;
-      
+      const image =
+        productImages && productImages.length > 0
+          ? productImages[0].thumbnails?.large?.url ||
+            productImages[0].thumbnails?.full?.url ||
+            productImages[0].url
+          : null;
+
+      const rawPrice = fields["Price_USD"] as number | null | undefined;
+      const price = rawPrice ? `$${rawPrice.toFixed(0)}` : null;
+
       return {
         id: record.id,
-        number: (index + 1).toString().padStart(2, '0'),
+        number: (index + 1).toString().padStart(2, "0"),
         title: (fields["Clean_Title"] as string).split("|")[0].trim(),
-        description: (fields["Clean_Description"] as string || "").slice(0, 100),
+        description: ((fields["Clean_Description"] as string) || "").slice(0, 100),
+        price,
         link: fields["Affiliate_Link"] as string,
-        image: pinImageMap.get(record.id) || fallbackImage
+        image,
       };
     }).filter((p): p is StarterProduct => p !== null);
   } catch (error) {
@@ -99,7 +95,8 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
 
 export const metadata: Metadata = {
   title: "The Japandi Starter Kit — 10 Essentials for a Calm Home",
-  description: "Discover our curated selection of 10 affordable essentials to start your Japandi journey and create a serene, minimalist living space.",
+  description:
+    "Discover our curated selection of 10 affordable essentials to start your Japandi journey and create a serene, minimalist living space.",
   alternates: {
     canonical: "/japandi-starter-kit",
   },
@@ -111,9 +108,12 @@ export default async function StarterKitPage() {
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
       {/* Minimalist Header */}
-      <header className="py-8 px-4 flex flex-col items-center gap-8">
+      <header className="py-8 px-4 flex flex-col items-center gap-4">
         <img src="/logo.ico" alt="" className="w-24 h-24 object-contain" />
-        <Link href="/" className="font-serif text-lg tracking-[0.3em] text-stone-900 font-bold">
+        <Link
+          href="/"
+          className="font-serif text-lg tracking-[0.3em] text-stone-900 font-bold"
+        >
           CALM HOME SPACES
         </Link>
       </header>
@@ -128,7 +128,8 @@ export default async function StarterKitPage() {
             10 affordable essentials to create a calm, minimal home
           </p>
           <p className="text-stone-500 text-base leading-relaxed max-w-lg mx-auto italic">
-            Curated with care. Every piece under $80. <br className="hidden sm:block" />
+            Curated with care. Every piece under $80. Prime-eligible.
+            <br className="hidden sm:block" />
             Everything you need to start your Japandi journey.
           </p>
         </div>
@@ -139,9 +140,12 @@ export default async function StarterKitPage() {
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-12 md:gap-x-8 md:gap-y-16">
             {products.map((product) => (
-              <div key={product.id} className="flex flex-col group animate-fade-in-up">
+              <div
+                key={product.id}
+                className="flex flex-col group animate-fade-in-up"
+              >
                 {/* Product Image */}
-                <div className="relative aspect-square overflow-hidden rounded-[1.5rem] bg-stone-200 mb-6 shadow-sm group-hover:shadow-md transition-shadow duration-500">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-stone-200 mb-5 shadow-sm group-hover:shadow-md transition-shadow duration-500">
                   {product.image && (
                     <Image
                       src={product.image}
@@ -155,16 +159,22 @@ export default async function StarterKitPage() {
 
                 {/* Product Info */}
                 <div className="flex-grow flex flex-col px-1">
-                  <span className="text-[10px] tracking-[0.2em] text-stone-400 font-semibold mb-2 block uppercase">
+                  <span className="text-[10px] tracking-[0.2em] text-stone-400 font-semibold mb-1 block uppercase">
                     {product.number}
                   </span>
                   <h3 className="font-serif text-lg md:text-xl text-stone-900 mb-2 leading-snug">
                     {product.title}
                   </h3>
-                  <p className="text-stone-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+                  <p className="text-stone-500 text-sm mb-3 line-clamp-2 leading-relaxed">
                     {product.description}
                   </p>
-                  
+
+                  {product.price && (
+                    <p className="text-stone-700 font-semibold text-sm mb-4">
+                      {product.price}
+                    </p>
+                  )}
+
                   <div className="mt-auto pt-2">
                     <a
                       href={product.link}
@@ -175,7 +185,7 @@ export default async function StarterKitPage() {
                       Check Price on Amazon
                       <ArrowRight className="w-3 h-3" />
                     </a>
-                    <div className="text-[8px] uppercase tracking-widest text-stone-300 mt-1">
+                    <div className="text-[8px] uppercase tracking-widest text-stone-300 mt-0.5">
                       affiliate link
                     </div>
                   </div>
@@ -186,11 +196,13 @@ export default async function StarterKitPage() {
         </div>
       </section>
 
-      {/* Compliance Section */}
-      <section className="px-4 py-16 border-t border-stone-200/50 bg-white/50">
+      {/* Amazon Disclaimer */}
+      <section className="px-4 py-12 border-t border-stone-200/50 bg-white/50">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-[10px] text-stone-400 italic">
-            As an Amazon Associate, I earn from qualifying purchases. Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}.
+          <p className="text-[10px] text-stone-400 italic leading-relaxed">
+            As an Amazon Associate, I earn from qualifying purchases.
+            <br />
+            Prices are approximate and may vary.
           </p>
         </div>
       </section>
@@ -203,7 +215,8 @@ export default async function StarterKitPage() {
             Want more Japandi finds every week?
           </h2>
           <p className="text-stone-500 mb-10 leading-relaxed font-sans">
-            Join our newsletter — new curated picks, styling tips, and calm home inspiration.
+            Join our newsletter — new curated picks, styling tips, and calm
+            home inspiration.
           </p>
           <Link
             href="/#subscribe"
@@ -214,7 +227,7 @@ export default async function StarterKitPage() {
         </div>
       </section>
 
-      {/* Minimal Footer */}
+      {/* Footer */}
       <Footer />
     </div>
   );
