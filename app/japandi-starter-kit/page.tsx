@@ -34,6 +34,7 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
   const apiKey = process.env.AIRTABLE_API_KEY;
   const baseId = process.env.AIRTABLE_BASE_ID;
   const tableName = process.env.AIRTABLE_TABLE_NAME || "Products";
+  const pinsTableName = "Pin (Post)";
 
   if (!apiKey || !baseId) {
     console.error("[Starter Kit] Missing Airtable configuration");
@@ -47,25 +48,41 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
       (title) => `{Clean_Title} = '${title.replace(/'/g, "\\'")}'`
     ).join(",")})`;
 
-    const records = await base(tableName)
-      .select({
-        filterByFormula: filterFormula,
-        fields: [
-          "Clean_Title",
-          "Clean_Description",
-          "Affiliate_Link",
-          "Product_Image",
-        ],
-      })
-      .all();
+    // Fetch Products and Pins in parallel
+    const [productRecords, pinRecords] = await Promise.all([
+      base(tableName)
+        .select({
+          filterByFormula: filterFormula,
+          fields: ["Clean_Title", "Clean_Description", "Affiliate_Link", "Product_Image"],
+        })
+        .all(),
+      base(pinsTableName)
+        .select({
+          fields: ["Product", "Generated_Media"],
+          filterByFormula: "NOT({Generated_Media} = '')",
+        })
+        .all(),
+    ]);
+
+    // Map pin images to product IDs (Pin > Product_Image)
+    const pinImageMap = new Map<string, string>();
+    pinRecords.forEach((record) => {
+      const productIds = record.fields["Product"] as string[] | undefined;
+      const media = record.fields["Generated_Media"] as any[] | undefined;
+      if (productIds && productIds.length > 0 && media && media.length > 0) {
+        const thumb = media[0].thumbnails?.large || media[0].thumbnails?.full;
+        const imageUrl = thumb?.url || media[0].url;
+        if (imageUrl) pinImageMap.set(productIds[0], imageUrl);
+      }
+    });
 
     return STARTER_KIT_TITLES.map((title, index) => {
-      const record = records.find((r) => r.fields["Clean_Title"] === title);
+      const record = productRecords.find((r) => r.fields["Clean_Title"] === title);
       if (!record) return null;
 
       const fields = record.fields;
       const productImages = fields["Product_Image"] as any[] | undefined;
-      const image =
+      const fallbackImage =
         productImages && productImages.length > 0
           ? productImages[0].thumbnails?.large?.url ||
             productImages[0].thumbnails?.full?.url ||
@@ -78,7 +95,8 @@ async function getStarterKitProducts(): Promise<StarterProduct[]> {
         title: (fields["Clean_Title"] as string).split("|")[0].trim(),
         description: ((fields["Clean_Description"] as string) || "").slice(0, 100),
         link: fields["Affiliate_Link"] as string,
-        image,
+        // Pin image has priority; fall back to Product_Image
+        image: pinImageMap.get(record.id) || fallbackImage,
       };
     }).filter((p): p is StarterProduct => p !== null);
   } catch (error) {
@@ -159,7 +177,7 @@ export default async function StarterKitPage() {
                   <h3 className="font-serif text-lg md:text-xl text-stone-900 mb-2 leading-snug">
                     {product.title}
                   </h3>
-                  <p className="text-stone-500 text-sm mb-3 line-clamp-2 leading-relaxed">
+                  <p className="text-stone-500 text-sm mb-4 line-clamp-2 leading-relaxed">
                     {product.description}
                   </p>
 
