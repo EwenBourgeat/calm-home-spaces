@@ -10,8 +10,8 @@ import { Footer } from "@/components/ui/Footer";
 
 import type { Metadata } from "next";
 
-// ISR — revalidate every hour to get fresh product images
-export const revalidate = 3600;
+// ISR — revalidate every 10 minutes to keep product images fresh
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   alternates: {

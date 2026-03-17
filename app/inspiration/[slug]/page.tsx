@@ -12,9 +12,8 @@ import { EmailCapture } from "@/components/ui/EmailCapture";
 import { Footer } from "@/components/ui/Footer";
 
 // ==============================================
-// ISR — Revalidate every hour so new products appear
-// ==============================================
-export const revalidate = 3600;
+// ISR — revalidate every 10 minutes so new products appear
+export const revalidate = 600;
 
 // ==============================================
 // Static Params — pre-generate all 8 article pages

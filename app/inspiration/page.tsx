@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     },
 };
 
-// ISR — revalidate every hour to get fresh product images
-export const revalidate = 3600;
+// ISR — revalidate every 10 minutes to keep product images fresh
+export const revalidate = 600;
 
 // Category → muted background color for cards (fallback when no image)
 const categoryColors: Record<string, string> = {

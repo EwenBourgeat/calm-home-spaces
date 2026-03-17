@@ -5,7 +5,8 @@ import { ArrowRight, ShoppingBag } from "lucide-react";
 import { Footer } from "@/components/ui/Footer";
 import Airtable from "airtable";
 
-export const revalidate = 3600;
+// Refresh every 5 minutes to ensure Airtable image signatures stay valid
+export const revalidate = 300;
 
 interface StarterProduct {
   id: string;

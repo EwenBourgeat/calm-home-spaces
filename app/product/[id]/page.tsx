@@ -8,8 +8,8 @@ import { PinterestPageTracker } from "@/components/ui/PinterestPageTracker";
 
 // ===================================
 // ISR Configuration
-// ISR Configuration — revalidate every hour for fresh URLs
-export const revalidate = 3600;
+// ISR Configuration — revalidate every 10 minutes for fresh URLs
+export const revalidate = 600;
 
 // ===================================
 // Dynamic SEO Metadata
