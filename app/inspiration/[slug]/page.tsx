@@ -409,7 +409,7 @@ export default async function InspirationArticlePage({
                     </div>
                 )}
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="text-[10px] tracking-[0.15em] uppercase text-stone-500 font-sans bg-stone-100 px-3 py-1 rounded-full">
+                    <span className="text-[10px] flex items-center tracking-[0.15em] uppercase text-white font-sans bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
                         {article.category}
                     </span>
                     <div className="flex items-center gap-1.5 text-stone-400">
