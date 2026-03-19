@@ -1,5 +1,9 @@
 import Airtable from "airtable";
-import { InspirationArticle } from "../data/inspiration-articles";
+import {
+    InspirationArticle,
+    getAllArticles as getLocalAllArticles,
+    getArticleBySlug as getLocalArticleBySlug,
+} from "../data/inspiration-articles";
 
 // ==============================================
 // Airtable Client for Articles
@@ -62,8 +66,10 @@ function mapArticleRecord(record: Airtable.Record<Airtable.FieldSet>): Inspirati
 export async function getAllArticles(): Promise<InspirationArticle[]> {
     const base = getBase();
     if (!base) {
-        console.warn("[Airtable Articles] Missing API key or Base ID — returning empty array");
-        return [];
+        console.warn(
+            "[Airtable Articles] Missing API key or Base ID — falling back to local articles"
+        );
+        return getLocalAllArticles();
     }
 
     try {
@@ -73,18 +79,30 @@ export async function getAllArticles(): Promise<InspirationArticle[]> {
             })
             .all();
 
-        return records
+        const airtableArticles = records
             .map(mapArticleRecord)
             .filter((a): a is InspirationArticle => a !== null);
+
+        // Ensure local drafts are visible even when Airtable is present but incomplete.
+        const localArticles = getLocalAllArticles();
+        const bySlug = new Map<string, InspirationArticle>();
+
+        // Start with local, then overlay Airtable (Airtable wins on collisions).
+        for (const a of localArticles) bySlug.set(a.slug, a);
+        for (const a of airtableArticles) bySlug.set(a.slug, a);
+
+        return Array.from(bySlug.values()).sort((a, b) =>
+            b.publishedAt.localeCompare(a.publishedAt)
+        );
     } catch (error) {
         console.error("[Airtable Articles] Failed to fetch articles:", error);
-        return [];
+        return getLocalAllArticles();
     }
 }
 
 export async function getArticleBySlug(slug: string): Promise<InspirationArticle | null> {
     const base = getBase();
-    if (!base) return null;
+    if (!base) return getLocalArticleBySlug(slug) ?? null;
 
     try {
         const records = await base(TABLE_NAME)
@@ -98,6 +116,6 @@ export async function getArticleBySlug(slug: string): Promise<InspirationArticle
         return mapArticleRecord(records[0]);
     } catch (error) {
         console.error(`[Airtable Articles] Failed to fetch article ${slug}:`, error);
-        return null;
+        return getLocalArticleBySlug(slug) ?? null;
     }
 }

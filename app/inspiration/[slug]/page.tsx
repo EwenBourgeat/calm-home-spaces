@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
+import Image from "next/image";
+import Script from "next/script";
 import {
     getAllArticles,
     getArticleBySlug,
@@ -105,35 +107,94 @@ function renderMarkdown(content: string) {
     let key = 0;
     let currentParagraph: string[] = [];
 
+    const parseInline = (text: string) =>
+        text
+            .replace(
+                /\*\*(.+?)\*\*/g,
+                '<strong class="text-stone-800 font-medium">$1</strong>'
+            )
+            .replace(/\*(.+?)\*/g, "<em>$1</em>");
+
     const flushParagraph = () => {
-        if (currentParagraph.length > 0) {
-            const text = currentParagraph.join(" ");
-            elements.push(
-                <p
-                    key={key++}
-                    className="text-stone-600 text-base md:text-[17px] leading-relaxed mb-6"
-                    dangerouslySetInnerHTML={{
-                        __html: text
-                            .replace(
-                                /\*\*(.+?)\*\*/g,
-                                '<strong class="text-stone-800 font-medium">$1</strong>'
-                            )
-                            .replace(
-                                /\*(.+?)\*/g,
-                                '<em>$1</em>'
-                            ),
-                    }}
-                />
-            );
-            currentParagraph = [];
-        }
+        if (currentParagraph.length === 0) return;
+        const text = currentParagraph.join(" ");
+        elements.push(
+            <p
+                key={key++}
+                className="text-stone-600 text-base md:text-[17px] leading-relaxed mb-6"
+                dangerouslySetInnerHTML={{ __html: parseInline(text) }}
+            />
+        );
+        currentParagraph = [];
     };
 
-    for (const line of lines) {
-        const trimmed = line.trim();
+    const renderAtAGlance = (items: string[]) => {
+        const parsed = items.map((raw) => {
+            const cleaned = raw.trim();
+            const match = cleaned.match(/^\*\*(.+?)\*\*:\s*(.*)$/);
+            if (!match) return { label: cleaned, value: "" };
+            return { label: match[1], value: match[2] };
+        });
+
+        return (
+            <section className="mt-10 mb-8 rounded-3xl bg-[#EDE8E0] border border-stone-200/70 px-5 py-6">
+                <div className="flex items-center gap-2 mb-6">
+                    <span className="text-[10px] tracking-[0.2em] uppercase text-[#8B7355] font-sans">
+                        At a Glance
+                    </span>
+                    <div className="w-10 h-px bg-[#C4B9A8]" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {parsed.map((it, idx) => (
+                        <div
+                            key={idx}
+                            className="rounded-2xl bg-white/55 border border-white/60 p-4"
+                        >
+                            <p className="text-[10px] tracking-widest uppercase text-stone-400 font-sans">
+                                {it.label}
+                            </p>
+                            {it.value ? (
+                                <p
+                                    className="mt-2 text-stone-700 text-base md:text-[16px] leading-relaxed"
+                                    dangerouslySetInnerHTML={{
+                                        __html: parseInline(it.value),
+                                    }}
+                                />
+                            ) : (
+                                <p className="mt-2 text-stone-700 text-base md:text-[16px] leading-relaxed">
+                                    {it.label}
+                                </p>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </section>
+        );
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+        const trimmed = lines[i].trim();
 
         if (trimmed === "") {
             flushParagraph();
+            continue;
+        }
+
+        // Special block required by plan2.md
+        if (trimmed === "## At a Glance") {
+            flushParagraph();
+            const items: string[] = [];
+            let j = i + 1;
+            while (j < lines.length) {
+                const t = lines[j].trim();
+                if (t === "") break;
+                if (t.startsWith("## ") || t.startsWith("### ")) break;
+                if (t.startsWith("- ")) items.push(t.slice(2));
+                j++;
+            }
+            elements.push(renderAtAGlance(items));
+            i = j - 1;
             continue;
         }
 
@@ -147,7 +208,10 @@ function renderMarkdown(content: string) {
                     {trimmed.slice(4)}
                 </h3>
             );
-        } else if (trimmed.startsWith("## ")) {
+            continue;
+        }
+
+        if (trimmed.startsWith("## ")) {
             flushParagraph();
             elements.push(
                 <h2
@@ -157,33 +221,71 @@ function renderMarkdown(content: string) {
                     {trimmed.slice(3)}
                 </h2>
             );
-        } else if (trimmed.startsWith("- ")) {
-            flushParagraph();
-            const itemText = trimmed.slice(2);
-            elements.push(
-                <li
-                    key={key++}
-                    className="text-stone-600 text-base md:text-[17px] leading-relaxed ml-5 mb-2 list-disc"
-                    dangerouslySetInnerHTML={{
-                        __html: itemText
-                            .replace(
-                                /\*\*(.+?)\*\*/g,
-                                '<strong class="text-stone-800 font-medium">$1</strong>'
-                            )
-                            .replace(
-                                /\*(.+?)\*/g,
-                                '<em>$1</em>'
-                            ),
-                    }}
-                />
-            );
-        } else {
-            currentParagraph.push(trimmed);
+            continue;
         }
-    }
-    flushParagraph();
 
+        if (trimmed.startsWith("- ")) {
+            flushParagraph();
+            const items: string[] = [];
+            let j = i;
+            while (j < lines.length) {
+                const t = lines[j].trim();
+                if (!t.startsWith("- ")) break;
+                items.push(t.slice(2));
+                j++;
+            }
+
+            elements.push(
+                <ul
+                    key={key++}
+                    className="ml-5 mb-6 list-disc text-stone-600 text-base md:text-[17px] leading-relaxed"
+                >
+                    {items.map((item, idx) => (
+                        <li
+                            key={idx}
+                            className="mb-2"
+                            dangerouslySetInnerHTML={{ __html: parseInline(item) }}
+                        />
+                    ))}
+                </ul>
+            );
+
+            i = j - 1;
+            continue;
+        }
+
+        currentParagraph.push(trimmed);
+    }
+
+    flushParagraph();
     return elements;
+}
+
+function estimateTotalTimeISO(readTime: string): string | undefined {
+    const match = readTime.match(/(\d+)\s*min/i);
+    if (!match) return undefined;
+    const minutes = Number(match[1]);
+    if (!Number.isFinite(minutes) || minutes <= 0) return undefined;
+    return `PT${minutes}M`;
+}
+
+function extractHowToSteps(content: string): string[] {
+    const lines = content.split("\n");
+    const steps: string[] = [];
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("## ")) continue;
+
+        const heading = trimmed.slice(3).trim();
+        if (!heading) continue;
+        if (heading.toLowerCase() === "at a glance") continue;
+
+        steps.push(heading);
+        if (steps.length >= 8) break;
+    }
+
+    return steps;
 }
 
 // ==============================================
@@ -224,11 +326,10 @@ export default async function InspirationArticlePage({
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://calmhomespaces.com";
 
-    // JSON-LD structured data for SEO
+    const isHowTo = article.slug.startsWith("how-to-");
     const jsonLd: any = {
         "@context": "https://schema.org",
-        "@type": "Article",
-        headline: article.title,
+        "@type": isHowTo ? "HowTo" : "BlogPosting",
         description: article.metaDescription,
         datePublished: article.publishedAt,
         author: {
@@ -241,18 +342,27 @@ export default async function InspirationArticlePage({
             url: baseUrl,
             logo: {
                 "@type": "ImageObject",
-                url: `${baseUrl}/logo.ico`
-            }
+                url: `${baseUrl}/logo.ico`,
+            },
         },
         mainEntityOfPage: {
             "@type": "WebPage",
-            "@id": `${baseUrl}/inspiration/${article.slug}`
-        }
+            "@id": `${baseUrl}/inspiration/${article.slug}`,
+        },
+        ...(isHowTo ? { name: article.title } : { headline: article.title }),
+        ...(heroUrl ? { image: heroUrl } : {}),
+        ...(isHowTo
+            ? {
+                  totalTime: estimateTotalTimeISO(article.readTime),
+                  step: extractHowToSteps(article.content).map((heading, idx) => ({
+                      "@type": "HowToStep",
+                      position: idx + 1,
+                      name: heading,
+                      text: heading,
+                  })),
+              }
+            : {}),
     };
-
-    if (heroUrl) {
-        jsonLd.image = heroUrl;
-    }
 
     return (
         <article className="min-h-screen pb-40 md:pb-16">
@@ -260,11 +370,14 @@ export default async function InspirationArticlePage({
                 eventName="ViewContent"
                 customData={{ content_name: article.slug }}
             />
-            {/* JSON-LD Schema */}
-            <script
+            {/* JSON-LD Schema (plan2.md: inject in <head>) */}
+            <Script
+                id="article-jsonld"
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
+                strategy="beforeInteractive"
+            >
+                {JSON.stringify(jsonLd)}
+            </Script>
 
             {/* Spacer for fixed header */}
             <div className="pt-24" />
@@ -282,6 +395,19 @@ export default async function InspirationArticlePage({
 
             {/* Article Header */}
             <header className="mx-auto max-w-3xl px-4 pb-8">
+                {heroUrl && (
+                    <div className="relative w-full h-56 md:h-72 mb-7 rounded-3xl overflow-hidden bg-stone-900">
+                        <Image
+                            src={heroUrl}
+                            alt={article.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 768px"
+                            priority
+                            className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/45 via-black/10 to-black/0" />
+                    </div>
+                )}
                 <div className="flex items-center gap-3 mb-4">
                     <span className="text-[10px] tracking-[0.15em] uppercase text-stone-500 font-sans bg-stone-100 px-3 py-1 rounded-full">
                         {article.category}

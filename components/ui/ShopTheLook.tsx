@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
 // ==============================================
@@ -27,9 +26,11 @@ function ProductCard({ product }: { product: ProductRecord }) {
     const [imgError, setImgError] = useState(false);
 
     return (
-        <Link
-            href={`/product/${product.id}`}
-            className="group flex-shrink-0 w-[220px] md:w-auto snap-start block rounded-xl bg-white overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+        <a
+            href={product.amazonUrl}
+            className="group shrink-0 w-[220px] md:w-auto snap-start block rounded-xl bg-white overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+            target="_blank"
+            rel="nofollow noreferrer noopener"
         >
             {/* Image — 1:1 ratio */}
             <div
@@ -70,11 +71,11 @@ function ProductCard({ product }: { product: ProductRecord }) {
 
                 <div className="mt-3">
                     <span className="text-[11px] tracking-wide uppercase text-stone-400 group-hover:text-[#8B7355] transition-colors duration-200">
-                        View Product →
+                        Check current price on Amazon
                     </span>
                 </div>
             </div>
-        </Link>
+        </a>
     );
 }
 

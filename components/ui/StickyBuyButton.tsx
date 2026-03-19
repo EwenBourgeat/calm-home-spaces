@@ -43,7 +43,7 @@ export function StickyBuyButton({
                     target="_blank"
                     rel="nofollow noreferrer noopener"
                     onClick={trackClick}
-                    aria-label={`View ${productTitle} on Amazon`}
+                    aria-label={`Check current price on Amazon for ${productTitle}`}
                     className={cn(
                         "inline-flex items-center justify-center gap-3",
                         "bg-forest text-cream px-8 py-4 rounded-full",
@@ -53,7 +53,7 @@ export function StickyBuyButton({
                     )}
                 >
                     <ShoppingBag className="w-5 h-5" />
-                    View on Amazon
+                    Check current price on Amazon
                 </a>
 
                 {/* Affiliate disclaimer — always visible, never hidden by CSS */}
@@ -71,7 +71,7 @@ export function StickyBuyButton({
                     target="_blank"
                     rel="nofollow noreferrer noopener"
                     onClick={trackClick}
-                    aria-label={`View ${productTitle} on Amazon`}
+                    aria-label={`Check current price on Amazon for ${productTitle}`}
                     className={cn(
                         "flex items-center justify-center gap-3 w-full",
                         "bg-forest text-cream py-4 rounded-full",
@@ -80,7 +80,7 @@ export function StickyBuyButton({
                     )}
                 >
                     <ShoppingBag className="w-5 h-5" />
-                    View on Amazon
+                    Check current price on Amazon
                 </a>
 
                 {/* Affiliate disclaimer — always visible on mobile */}

@@ -15,6 +15,34 @@ export const SLUG_RULES: Record<string, MatchRule> = {
     "minimalist-bathroom": { categories: ["Salle de bain"] },
 };
 
+function getHeroRuleForSlug(slug: string): MatchRule | null {
+    const explicit = SLUG_RULES[slug];
+    if (explicit) return explicit;
+
+    // Fallback heuristic to ensure new articles still get hero images.
+    // We only rely on the slug text so we can keep the function signature unchanged.
+    const lower = slug.toLowerCase();
+
+    if (lower.includes("bath")) {
+        return { categories: ["Salle de bain"] };
+    }
+
+    if (lower.includes("bed")) {
+        return { categories: ["Chambre"] };
+    }
+
+    if (lower.includes("office")) {
+        return { categories: ["Bureau"] };
+    }
+
+    if (lower.includes("lamp") || lower.includes("lighting")) {
+        return { categories: ["Salon"], subCategories: ["Lighting"] };
+    }
+
+    // Kitchen / entryway / living room / seasonal / decor-ish → default to Salon.
+    return { categories: ["Salon"] };
+}
+
 /**
  * Assigns unique hero images to a list of article slugs.
  * Prevents the same product image from being used as a hero for multiple articles.
@@ -31,7 +59,7 @@ export function getUniqueHeroImages<T>(
     const usedImages = new Set<string>();
 
     for (const slug of slugs) {
-        const rule = SLUG_RULES[slug];
+        const rule = getHeroRuleForSlug(slug);
         if (!rule) {
             heroImages[slug] = null;
             continue;

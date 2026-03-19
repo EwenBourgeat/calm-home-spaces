@@ -5,6 +5,7 @@ import { VariantSwitcher } from "@/components/ui/VariantSwitcher";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { PinterestPageTracker } from "@/components/ui/PinterestPageTracker";
+import Script from "next/script";
 
 // ===================================
 // ISR Configuration
@@ -105,10 +106,14 @@ export default async function ProductPage({
 
     return (
         <article className="min-h-screen pb-40 md:pb-16">
-            <script
+            {/* JSON-LD Schema (plan2.md: inject in <head>) */}
+            <Script
+                id="product-jsonld"
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
+                strategy="beforeInteractive"
+            >
+                {JSON.stringify(jsonLd)}
+            </Script>
             <PinterestPageTracker
                 eventName="PageVisit"
                 customData={{
