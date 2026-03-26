@@ -52,7 +52,7 @@ export function VariantSwitcher({ variants, initialVariantId }: VariantSwitcherP
                 {hasVariants && (
                     <div className="mb-6">
                         <p className="text-xs text-stone-400 uppercase tracking-wider mb-3">
-                            Couleur : <span className="text-stone-600">{active.colorVariant}</span>
+                            Color: <span className="text-stone-600">{active.colorVariant}</span>
                         </p>
                         <div className="flex items-center gap-2">
                             {variants.map((variant, i) => (

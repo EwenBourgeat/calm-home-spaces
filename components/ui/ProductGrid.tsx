@@ -10,18 +10,18 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ groups }: ProductGridProps) {
-    const [activeCategory, setActiveCategory] = useState<string>("Tout");
+    const [activeCategory, setActiveCategory] = useState<string>("All");
 
     // Extract unique categories from groups
     const categories = useMemo(() => {
         const cats = Array.from(new Set(groups.map((g) => g.category)));
         cats.sort();
-        return ["Tout", ...cats];
+        return ["All", ...cats];
     }, [groups]);
 
     // Filter groups by category
     const filtered = useMemo(() => {
-        if (activeCategory === "Tout") return groups;
+        if (activeCategory === "All") return groups;
         return groups.filter((g) => g.category === activeCategory);
     }, [groups, activeCategory]);
 
@@ -32,7 +32,7 @@ export function ProductGrid({ groups }: ProductGridProps) {
                 {categories.map((cat) => {
                     const isActive = cat === activeCategory;
                     const count =
-                        cat === "Tout"
+                        cat === "All"
                             ? groups.length
                             : groups.filter((g) => g.category === cat).length;
 

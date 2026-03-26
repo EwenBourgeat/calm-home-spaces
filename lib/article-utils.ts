@@ -5,14 +5,14 @@ export type MatchRule = {
 
 // Slug → product matching rules for hero images
 export const SLUG_RULES: Record<string, MatchRule> = {
-    "japandi-living-room": { categories: ["Salon"], subCategories: ["Lighting"] },
+    "japandi-living-room": { categories: ["Living"], subCategories: ["Lighting"] },
     "cozy-reading-nook": { subCategories: ["Lighting"] },
-    "minimalist-bedroom": { categories: ["Chambre"] },
+    "minimalist-bedroom": { categories: ["Bedroom"] },
     "hygge-evening-lighting": { subCategories: ["Lighting"] },
-    "scandinavian-spring-refresh": { categories: ["Salon"] },
-    "japandi-shelf-styling": { categories: ["Salon"] },
-    "wabi-sabi-home": { categories: ["Salon"] },
-    "minimalist-bathroom": { categories: ["Salle de bain"] },
+    "scandinavian-spring-refresh": { categories: ["Living"] },
+    "japandi-shelf-styling": { categories: ["Living"] },
+    "wabi-sabi-home": { categories: ["Living"] },
+    "minimalist-bathroom": { categories: ["Bathroom"] },
 };
 
 function getHeroRuleForSlug(slug: string): MatchRule | null {
@@ -24,23 +24,23 @@ function getHeroRuleForSlug(slug: string): MatchRule | null {
     const lower = slug.toLowerCase();
 
     if (lower.includes("bath")) {
-        return { categories: ["Salle de bain"] };
+        return { categories: ["Bathroom"] };
     }
 
     if (lower.includes("bed")) {
-        return { categories: ["Chambre"] };
+        return { categories: ["Bedroom"] };
     }
 
     if (lower.includes("office")) {
-        return { categories: ["Bureau"] };
+        return { categories: ["Office"] };
     }
 
     if (lower.includes("lamp") || lower.includes("lighting")) {
-        return { categories: ["Salon"], subCategories: ["Lighting"] };
+        return { categories: ["Living"], subCategories: ["Lighting"] };
     }
 
-    // Kitchen / entryway / living room / seasonal / decor-ish → default to Salon.
-    return { categories: ["Salon"] };
+    // Kitchen / entryway / living room / seasonal / decor-ish → default to Living.
+    return { categories: ["Living"] };
 }
 
 /**

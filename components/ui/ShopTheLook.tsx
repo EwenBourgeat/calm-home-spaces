@@ -12,10 +12,10 @@ import type { ProductRecord } from "@/lib/airtable";
 
 // Category → placeholder background
 const categoryPlaceholders: Record<string, string> = {
-    Bureau: "bg-amber-100/60",
-    Chambre: "bg-stone-200/60",
-    "Salle de bain": "bg-sky-100/40",
-    Salon: "bg-stone-200/60",
+    Office: "bg-amber-100/60",
+    Bedroom: "bg-stone-200/60",
+    Bathroom: "bg-sky-100/40",
+    Living: "bg-stone-200/60",
 };
 
 // ==============================================

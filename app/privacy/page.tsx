@@ -101,7 +101,7 @@ export default function PrivacyPolicyPage() {
                                         },
                                         {
                                             term: "Country",
-                                            definition: "refers to: France.",
+                                            definition: "refers to: United States.",
                                         },
                                         {
                                             term: "Device",

@@ -144,7 +144,7 @@ export default async function HomePage() {
                   key={article.slug}
                   href={`/inspiration/${article.slug}`}
                   className={cn(
-                    "group block rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 relative flex flex-col justify-end animate-fade-in-up",
+                    "group rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 relative flex flex-col justify-end animate-fade-in-up",
                     !heroUrl ? "bg-stone-800" : "bg-stone-200",
                     index === 0 ? "md:col-span-2 md:row-span-2 min-h-[400px]" : "col-span-1 row-span-1 min-h-[250px] md:h-full"
                   )}
@@ -166,21 +166,15 @@ export default async function HomePage() {
                   )}
                   
                   {/* Gradient overlay for readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-black/5" />
   
                   {/* Card body */}
                   <div className="relative z-10 p-5 md:p-6 w-full">
                     {/* Top badging */}
                     <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className="text-[9px] tracking-[0.15em] uppercase font-sans px-2.5 py-1 rounded-full font-medium text-white bg-white/20 backdrop-blur-md border border-white/10">
+                      <span className="text-[9px] flex items-center tracking-wider uppercase font-sans px-2 py-1 rounded-full font-medium text-white bg-black/40 backdrop-blur-md border border-white/10">
                         {article.category}
                       </span>
-                      {heroUrl && (
-                        <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-white bg-black/40 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
-                          <ShoppingBag className="w-2.5 h-2.5" />
-                          Shoppable
-                        </span>
-                      )}
                     </div>
                     
                     <h3 className={cn(
