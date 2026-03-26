@@ -85,9 +85,9 @@ function matchProducts(articleProductIds: string[] | undefined, allProducts: Pro
             const pSub = p.subCategory.toLowerCase();
             return pCat.includes(cat) || cat.includes(pCat) || 
                    pSub.includes(cat) || cat.includes(pSub) ||
-                   (cat === "japandi style" && (pCat === "living" || pCat === "bedroom")) ||
-                   (cat === "cozy living" && (pCat === "bedroom" || pCat === "living")) ||
-                   (cat === "scandinavian" && pCat === "living");
+                   (cat === "japandi style" && (pCat === "salon" || pCat === "chambre")) ||
+                   (cat === "cozy living" && (pCat === "chambre" || pCat === "salon")) ||
+                   (cat === "scandinavian" && pCat === "salon");
         });
         matchedByCategory.sort(() => 0.5 - Math.random()); // Random selection for variety
         return matchedByCategory.slice(0, 3);
